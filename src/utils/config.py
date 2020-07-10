@@ -29,7 +29,7 @@ embedding_pretrained = torch.tensor(
 is_cuda = True
 device = torch.device('cuda') if is_cuda else torch.device('cpu')
 class_list = [
-    x.strip() for x in open(root_path + '/data/class.txt').readlines()
+    x.strip() for x in open(root_path + '/data/class.txt', encoding='UTF-8').readlines()
 ]  # 类别名单
 num_classes = len(class_list)
 

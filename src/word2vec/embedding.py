@@ -46,7 +46,7 @@ class Embedding(metaclass=SingletonMetaclass):
         @param {type} None
         @return: None
         '''
-        self.stopWords = open(root_path + '/data/stopwords.txt').readlines()
+        self.stopWords = open(root_path + '/data/stopwords.txt', encoding='utf-8').readlines()
         self.ae = AutoEncoder()
 
     def load_data(self):
