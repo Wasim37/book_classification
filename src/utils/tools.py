@@ -24,8 +24,8 @@ from sklearn import metrics
 from sklearn.feature_selection import RFECV
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
 from skopt import BayesSearchCV
-from keras.preprocessing.text import Tokenizer
-from keras.preprocessing.sequence import pad_sequences
+from keras_preprocessing.text import Tokenizer
+from keras_preprocessing.sequence import pad_sequences
 from tqdm import tqdm
 
 from src.utils import config
