@@ -58,9 +58,9 @@ class Embedding(metaclass=SingletonMetaclass):
         '''
         logger.info('load data')
         self.data = pd.concat([
-            pd.read_csv(root_path + '/data/train.csv', sep='\t', nrows=212),
-            pd.read_csv(root_path + '/data/dev.csv', sep='\t', nrows=60),
-            pd.read_csv(root_path + '/data/test.csv', sep='\t', nrows=30)
+            pd.read_csv(root_path + '/data/train.csv', sep='\t', nrows=21),
+            pd.read_csv(root_path + '/data/dev.csv', sep='\t', nrows=6),
+            pd.read_csv(root_path + '/data/test.csv', sep='\t', nrows=3)
         ])
         self.data["text"] = self.data['title'] + self.data['desc']
         self.data["text"] = self.data["text"].apply(query_cut)
@@ -94,20 +94,20 @@ class Embedding(metaclass=SingletonMetaclass):
                        epochs=15,
                        report_delay=1)
 
-        # logger.info('train fast')
-        # self.fast = models.FastText(sentences=self.data.text,
-        #                             size=300,
-        #                             window=3,
-        #                             alpha=0.03,
-        #                             min_alpha=0.0007,
-        #                             min_count=2,
-        #                             max_vocab_size=1000,
-        #                             word_ngrams=1,
-        #                             sample=1e-3,
-        #                             seed=1,
-        #                             workers=1,
-        #                             negative=5,
-        #                             iter=1)
+        logger.info('train fast')
+        self.fast = models.FastText(sentences=self.data.text,
+                                    size=300,
+                                    window=3,
+                                    alpha=0.03,
+                                    min_alpha=0.0007,
+                                    min_count=2,
+                                    max_vocab_size=1000,
+                                    word_ngrams=1,
+                                    sample=1e-3,
+                                    seed=1,
+                                    workers=1,
+                                    negative=5,
+                                    iter=1)
 
         logger.info('train lda')
         # hint 使用gensim
@@ -135,10 +135,10 @@ class Embedding(metaclass=SingletonMetaclass):
                                          '/model/embedding/w2v.bin',
                                          binary=False)
 
-        # logger.info('save fast model')
-        # self.fast.wv.save_word2vec_format(root_path +
-        #                                   '/model/embedding/fast.bin',
-        #                                   binary=False)
+        logger.info('save fast model')
+        self.fast.wv.save_word2vec_format(root_path +
+                                          '/model/embedding/fast.bin',
+                                          binary=False)
 
         logger.info('save lda model')
         self.LDAmodel.save(root_path + '/model/embedding/lda')
@@ -154,18 +154,16 @@ class Embedding(metaclass=SingletonMetaclass):
         '''
         logger.info('load tfidf model')
         self.tfidf = joblib.load(root_path + '/model/embedding/tfidf')
-        # print()
 
         logger.info('load w2v model')
         self.w2v = models.KeyedVectors.load_word2vec_format(
             root_path + '/model/embedding/w2v.bin', binary=False)
         print("w2v_embedding输出词表的个数{}".format(len(self.w2v.wv.vocab.keys())))
 
-
-        # logger.info('load fast model')
-        # self.fast = models.KeyedVectors.load_word2vec_format(
-        #     root_path + '/model/embedding/fast.bin', binary=False)
-        # print(fast_embedding输出词表的个数{}".format(len(self.fast.wv.vocab.keys())))
+        logger.info('load fast model')
+        self.fast = models.KeyedVectors.load_word2vec_format(
+            root_path + '/model/embedding/fast.bin', binary=False)
+        print("fast_embedding输出词表的个数{}".format(len(self.fast.wv.vocab.keys())))
 
         logger.info('load lda model')
         self.lda = LdaModel.load(root_path + '/model/embedding/lda')
@@ -177,7 +175,7 @@ class Embedding(metaclass=SingletonMetaclass):
 
 if __name__ == "__main__":
     em = Embedding()
-    # em.load_data()
-    # em.trainer()
-    # em.saver()
+    em.load_data()
+    em.trainer()
+    em.saver()
     em.load()

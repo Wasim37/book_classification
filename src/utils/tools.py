@@ -23,7 +23,7 @@ from bayes_opt import BayesianOptimization
 from sklearn import metrics
 from sklearn.feature_selection import RFECV
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
-from skopt import BayesSearchCV
+# from skopt import BayesSearchCV
 from keras_preprocessing.text import Tokenizer
 from keras_preprocessing.sequence import pad_sequences
 from tqdm import tqdm
@@ -237,32 +237,32 @@ def bayes_parameter_opt_lgb(trn_data,
     return lgbBO.max
 
 
-bayes_cv_tuner = BayesSearchCV(
-    estimator=lgb.LGBMClassifier(boosting_type='gbdt',
-                                 application='multiclass',
-                                 n_jobs=-1,
-                                 verbose=1),
-    search_spaces={
-        'learning_rate': (0.01, 1.0, 'log-uniform'),
-        'num_leaves': (2, 500),
-        'max_depth': (0, 500),
-        'min_child_samples': (0, 200),
-        'max_bin': (100, 100000),
-        'subsample': (0.01, 1.0, 'uniform'),
-        'subsample_freq': (0, 10),
-        'colsample_bytree': (0.01, 1.0, 'uniform'),
-        'min_child_weight': (0, 10),
-        'subsample_for_bin': (100000, 500000),
-        'reg_lambda': (1e-9, 1000, 'log-uniform'),
-        'reg_alpha': (1e-9, 1.0, 'log-uniform'),
-        'scale_pos_weight': (1e-6, 500, 'log-uniform'),
-        'n_estimators': (10, 10000),
-    },
-    scoring='f1_macro',
-    cv=StratifiedKFold(n_splits=2),
-    n_iter=30,
-    verbose=1,
-    refit=True)
+# bayes_cv_tuner = BayesSearchCV(
+#     estimator=lgb.LGBMClassifier(boosting_type='gbdt',
+#                                  application='multiclass',
+#                                  n_jobs=-1,
+#                                  verbose=1),
+#     search_spaces={
+#         'learning_rate': (0.01, 1.0, 'log-uniform'),
+#         'num_leaves': (2, 500),
+#         'max_depth': (0, 500),
+#         'min_child_samples': (0, 200),
+#         'max_bin': (100, 100000),
+#         'subsample': (0.01, 1.0, 'uniform'),
+#         'subsample_freq': (0, 10),
+#         'colsample_bytree': (0.01, 1.0, 'uniform'),
+#         'min_child_weight': (0, 10),
+#         'subsample_for_bin': (100000, 500000),
+#         'reg_lambda': (1e-9, 1000, 'log-uniform'),
+#         'reg_alpha': (1e-9, 1.0, 'log-uniform'),
+#         'scale_pos_weight': (1e-6, 500, 'log-uniform'),
+#         'n_estimators': (10, 10000),
+#     },
+#     scoring='f1_macro',
+#     cv=StratifiedKFold(n_splits=2),
+#     n_iter=30,
+#     verbose=1,
+#     refit=True)
 
 
 def rfecv_opt(model, n_jobs, X, y, cv=StratifiedKFold(2)):

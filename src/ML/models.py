@@ -52,15 +52,15 @@ class Models(object):
         # 2. 使用torchvision 初始化 resnext101_32x8d 模型
         # 3. 使用torchvision 初始化  wide_resnet101_2 模型
         # 4. 加载bert 模型
-        self.res_model =
+        self.res_model = torchvision.models.resnet152(pretrained=True)
         self.res_model = self.res_model.to(config.device)
-        self.resnext_model =
+        self.resnext_model = torchvision.models.resnext101_32x8d(pretrained=True)
         self.resnext_model = self.resnext_model.to(config.device)
-        self.wide_model =
+        self.wide_model = torchvision.models.wide_resnet101_2(pretrained=True)
         self.wide_model = self.wide_model.to(config.device)
         self.bert_tonkenizer = BertTokenizer.from_pretrained(
             config.root_path + '/../textClassification/model/bert')
-        self.bert =
+        self.bert = 
         self.bert = self.bert.to(config.device)
 
         self.ml_data = MLData(debug_mode=True)
@@ -214,8 +214,7 @@ class Models(object):
         @return: None
         '''
         logger.info("get all freature")
-        self.X_train, self.X_test, self.y_train, self.y_test = self.feature_engineer(
-        )
+        self.X_train, self.X_test, self.y_train, self.y_test = self.feature_engineer()
         model_name = None
         if imbalance_method == 'over_sampling':
             logger.info("Use SMOTE deal with unbalance data ")

@@ -7,7 +7,7 @@
 @Desciption: Machine Learning model main function
 '''
 import argparse
-
+from __init__ import *
 from src.utils import config
 from src.utils.tools import create_logger
 from models import Models

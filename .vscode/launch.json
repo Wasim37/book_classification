@@ -9,7 +9,13 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "args": [
+                "--feature_engineering", "True",
+                "--search_method", "bayesian",
+                "--unbalance", "True",
+                "--imbalance_method", "under_sampling"
+            ]
         }
     ]
 }
