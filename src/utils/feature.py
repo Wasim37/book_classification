@@ -40,6 +40,7 @@ def get_autoencoder_feature(train,
     '''
     ### TODO
     # 1. 返回autoencoder embedding
+    return train, test
 
 
 def get_lda_features(lda_model, document):
@@ -54,7 +55,8 @@ def get_lda_features(lda_model, document):
     '''
     ### TODO
     # 1. 返回lda feature
-
+    # bow = lda_model.id2word.doc2bow(document)
+    # return lda_model.get_document_topics(bow, per_word_topics=True)
 
 def get_pretrain_embedding(text, tokenizer, model):
     '''
@@ -199,28 +201,28 @@ def get_basic_feature(df):
     df['text'] = df['title'] + df['desc']
     df['queryCut'] = df['queryCut'].progress_apply(
         lambda x: [i if i not in ch2en.keys() else ch2en[i] for i in x])
-    df['length'] = ### TODO 计算input 长度
-    df['capitals'] = ### TODO 计算大写 个数
-    df['caps_vs_length'] = ### TODO 计算大写个数和长度的比值
-    df['num_exclamation_marks'] =### TODO 计算感叹号的个数
-    df['num_question_marks'] =### TODO 计算问号长度
-    df['num_punctuation'] =### TODO 计算标点符号个数
-    df['num_symbols'] =### TODO 计算*&$% 的个数
-    df['num_words'] =### TODO 计算词的个数
-    df['num_unique_words'] =### TODO 计算唯一词的个数
-    df['words_vs_unique'] =### TODO词的个数与唯一词个数的比例
+    # df['length'] = len(df['text'])### TODO 计算input 长度
+    # df['capitals'] = ### TODO 计算大写 个数
+    # df['caps_vs_length'] = ### TODO 计算大写个数和长度的比值
+    # df['num_exclamation_marks'] =### TODO 计算感叹号的个数
+    # df['num_question_marks'] =### TODO 计算问号长度
+    # df['num_punctuation'] =### TODO 计算标点符号个数
+    # df['num_symbols'] =### TODO 计算*&$% 的个数
+    # df['num_words'] =### TODO 计算词的个数
+    # df['num_unique_words'] =### TODO 计算唯一词的个数
+    # df['words_vs_unique'] =### TODO词的个数与唯一词个数的比例
     df['nouns'], df['adjectives'], df['verbs'] = zip(
         *df['text'].progress_apply(lambda x: tag_part_of_speech(x)))
-    df['nouns_vs_length'] =### TODO 计算名词个数与长度的占比
-    df['adjectives_vs_length'] =### TODO 计算形容词个数与长度的占比
-    df['verbs_vs_length'] =### TODO 计算动词个数与长度的占比
-    df['nouns_vs_words'] =### TODO 计算名词个数与词的个数的占比
-    df['adjectives_vs_words'] =### TODO 计算形容词个数与词的个数的占比
-    df['verbs_vs_words'] =### TODO 计算动词个数与词的个数的占比
-    # More Handy Features
-    df["count_words_title"] =### TODO 计算title的词的个数
-    df["mean_word_len"] =### TODO 计算词的平均长度
-    df['punct_percent'] =### TODO 计算标点个数与词的个数的占比
+    # df['nouns_vs_length'] =### TODO 计算名词个数与长度的占比
+    # df['adjectives_vs_length'] =### TODO 计算形容词个数与长度的占比
+    # df['verbs_vs_length'] =### TODO 计算动词个数与长度的占比
+    # df['nouns_vs_words'] =### TODO 计算名词个数与词的个数的占比
+    # df['adjectives_vs_words'] =### TODO 计算形容词个数与词的个数的占比
+    # df['verbs_vs_words'] =### TODO 计算动词个数与词的个数的占比
+    # # More Handy Features
+    # df["count_words_title"] =### TODO 计算title的词的个数
+    # df["mean_word_len"] =### TODO 计算词的平均长度
+    # df['punct_percent'] =### TODO 计算标点个数与词的个数的占比
     return df
 
 

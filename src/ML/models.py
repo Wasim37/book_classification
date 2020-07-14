@@ -22,6 +22,7 @@ from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from transformers import BertModel, BertTokenizer
 
+from __init__ import *
 from src.data.mlData import MLData
 from src.utils import config
 from src.utils.config import root_path
@@ -59,8 +60,8 @@ class Models(object):
         self.wide_model = torchvision.models.wide_resnet101_2(pretrained=True)
         self.wide_model = self.wide_model.to(config.device)
         self.bert_tonkenizer = BertTokenizer.from_pretrained(
-            config.root_path + '/../textClassification/model/bert')
-        self.bert = 
+            config.root_path + '/model/bert/bert-base-uncased-vocab.txt')
+        self.bert = BertModel.from_pretrained(config.root_path + '/model/bert/')
         self.bert = self.bert.to(config.device)
 
         self.ml_data = MLData(debug_mode=True)
@@ -111,8 +112,7 @@ class Models(object):
         y_test, label of test set
         '''
         logger.info("generate embedding feature ")
-        train_tfidf, test_tfidf, train, test = get_embedding_feature(
-            self.ml_data)
+        train_tfidf, test_tfidf, train, test = get_embedding_feature(self.ml_data)
 
         logger.info("generate basic feature ")
         #### 本代码中的函数实现均在utils/feature.py中
@@ -120,6 +120,8 @@ class Models(object):
         #### 本代码中的函数实现均在utils/feature.py中
         ### TODO
         # 1. 获取 基本的 NLP feature
+        train['basic_feature'] = get_basic_feature(train)
+        test['basic_feature'] = get_basic_feature(test)
 
         logger.info("generate modal feature ")
         cover = os.listdir(config.root_path + '/data/book_cover/')
@@ -132,38 +134,37 @@ class Models(object):
 
         ### TODO
         # 1. 获取 三大CV模型的 modal embedding
-        train['res_embedding'] =
-        test['res_embedding'] =
+        train['res_embedding'] = get_img_embedding(train['cover'], self.res_model)
+        test['res_embedding'] = get_img_embedding(test['cover'], self.res_model)
 
-        train['resnext_embedding'] =
-        test['resnext_embedding'] =
+        train['resnext_embedding'] = get_img_embedding(train['cover'], self.resnext_model)
+        test['resnext_embedding'] = get_img_embedding(test['cover'], self.resnext_model)
 
-        train['wide_embedding'] =
-        test['wide_embedding'] =
+        train['wide_embedding'] = get_img_embedding(train['cover'], self.wide_model)
+        test['wide_embedding'] = get_img_embedding(test['cover'], self.wide_model)
 
         logger.info("generate bert feature ")
         ### TODO
         # 1. 获取bert embedding
-        train['bert_embedding'] =
-        test['bert_embedding'] =
+        train['bert_embedding'] = get_pretrain_embedding(train['cover'], self.bert_tonkenizer, self.bert)
+        test['bert_embedding'] = get_pretrain_embedding(test['cover'], self.bert_tonkenizer, self.bert)
 
         logger.info("generate lda feature ")
 
         ### TODO
         # 1. 获取 lda feature
-        train['bow'] =
-        test['bow'] =
-        train['lda'] =
-        test['lda'] =
+        # train['bow'] =
+        # test['bow'] =
+        # train['lda'] = get_lda_features(self.ml_data.em.lda, train)
+        # test['lda'] = get_lda_features(self.ml_data.em.lda, test)
 
         logger.info("generate autoencoder feature ")
         ### TODO
         # 1. 获取 autoencoder feature
-        train_ae, test_ae =
+        train_ae, test_ae = get_autoencoder_feature(train, test, self.ml_data.em.max_features, self.ml_data.em.max_len, self.ml_data.em.ae)
 
         logger.info("formate data")
-        train, test = formate_data(train, test, train_tfidf, test_tfidf,
-                                   train_ae, test_ae)
+        train, test = formate_data(train, test, train_tfidf, test_tfidf, train_ae, test_ae)
         cols = [x for x in train.columns if str(x) not in ['labelIndex']]
         X_train = train[cols]
         X_test = test[cols]
@@ -220,15 +221,15 @@ class Models(object):
             logger.info("Use SMOTE deal with unbalance data ")
             ### TODO
             # 1. 使用over_sampling 处理样本不平衡问题
-            self.X_train, self.y_train =
-            self.X_test, self.y_test =
+            self.X_train, self.y_train = SMOTE(random_state=0).fit_resample(self.X_train, self.y_train)
+            self.X_test, self.y_test = SMOTE(random_state=0).fit_resample(self.X_test, self.y_test)
             model_name = 'lgb_over_sampling'
         elif imbalance_method == 'under_sampling':
             logger.info("Use ClusterCentroids deal with unbalance data ")
             ### TODO
             # 1. 使用 under_sampling 处理样本不平衡问题
-            self.X_train, self.y_train =
-            self.X_test, self.y_test =
+            self.X_train, self.y_train = ClusterCentroids(random_state=0).fit_sample(self.X_train, self.y_train)
+            self.X_test, self.y_test = ClusterCentroids(random_state=0).fit_sample(self.X_test, self.y_test)
             model_name = 'lgb_under_sampling'
         elif imbalance_method == 'ensemble':
             self.model = BalancedBaggingClassifier(
@@ -241,15 +242,16 @@ class Models(object):
         if imbalance_method != 'ensemble':
             ### TODO
             # 1. 使用 参数搜索技术
+            self.param_search('bayesian')
         logger.info('fit model ')
         self.model.fit(self.X_train, self.y_train)
         ### TODO
         # 1. 预测测试集的label
         # 2. 预测训练机的label
         # 3. 计算percision , accuracy, recall, fi_score
-        Test_predict_label =
-        Train_predict_label =
-        per, acc, recall, f1 =
+        Test_predict_label = self.predict(self.X_test)
+        Train_predict_label = self.predict(self.X_train)
+        per, acc, recall, f1 = get_score(self.y_train, self.y_test, Train_predict_label, Test_predict_label)
         # 输出训练集的准确率
         logger.info('Train accuracy %s' % per)
         # 输出测试集的准确率
@@ -306,7 +308,7 @@ class Models(object):
         '''
         ### TODO
         # 1. 预测结果
-
+        return self.model.predict(text)
 
     def save(self, model_name):
         '''
@@ -317,6 +319,7 @@ class Models(object):
         '''
         ### TODO
         # 1. 保存模型
+        joblib.dump(self.model, model_name)
 
     def load(self, path):
         '''
@@ -327,4 +330,3 @@ class Models(object):
         '''
         ### TODO
         # 1. 加载模型
-

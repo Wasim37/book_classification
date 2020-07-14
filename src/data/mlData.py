@@ -13,7 +13,7 @@ import json
 import os
 from __init__ import *
 from src.utils import config
-from src.utils.tools import create_logger, wam, query_cut
+from src.utils.tools import create_logger, wam, query_cut, rm_stop_word
 from src.word2vec.embedding import Embedding
 logger = create_logger(config.log_dir + 'data.log')
 
@@ -39,10 +39,8 @@ class MLData(object):
         @return: None
         '''
         logger.info('load data')
-        self.train = pd.read_csv(config.root_path + '/data/train.tsv',
-                                 sep='\t').dropna()
-        self.dev = pd.read_csv(config.root_path + '/data/dev.tsv',
-                               sep='\t').dropna()
+        self.train = pd.read_csv(config.root_path + '/data/train.csv', sep='\t').dropna()
+        self.dev = pd.read_csv(config.root_path + '/data/dev.csv', sep='\t').dropna()
         if self.debug_mode:
             self.train = self.train.sample(n=1000).reset_index(drop=True)
             self.dev = self.dev.sample(n=100).reset_index(drop=True)
@@ -50,12 +48,16 @@ class MLData(object):
         # 1. 分词
         # 2. 去除停止词
         # 3. 将label 转换为id
-        self.train["queryCut"] =
-        self.dev["queryCut"] =
-        self.train["queryCutRMStopWord"] =
-        self.dev["queryCutRMStopWord"] =
-        self.train["labelIndex"] =
-        self.dev["labelIndex"] =
+        self.train["queryCut"] = self.train['text'].apply(query_cut)
+        self.dev["queryCut"] = self.dev['text'].apply(query_cut)
+        self.train["queryCutRMStopWord"] = self.train['queryCut'].apply(rm_stop_word)
+        self.dev["queryCutRMStopWord"] = self.dev['queryCut'].apply(rm_stop_word)
+
+        labelName = self.train.label.unique()
+        labelIndex = list(range(len(labelName)))
+        labelNameToIndex = dict(zip(labelName, labelIndex))
+        self.train["labelIndex"] = self.train.label.map(labelNameToIndex)
+        self.dev["labelIndex"] = self.dev.map(labelNameToIndex)
 
     def process_data(self, method='word2vec'):
         '''

@@ -27,7 +27,7 @@ from sklearn.model_selection import GridSearchCV, StratifiedKFold
 from keras_preprocessing.text import Tokenizer
 from keras_preprocessing.sequence import pad_sequences
 from tqdm import tqdm
-
+from __init__ import *
 from src.utils import config
 
 tqdm.pandas()
@@ -59,6 +59,15 @@ def query_cut(query):
     list of cut word
     '''
     return list(jieba.cut(query))
+
+
+def rm_stop_word(wordList):
+    '''
+    函数说明：该函数用于去除输入样本中的存在的停用词
+    Return: 返回去除停用词之后的样本
+    '''
+    stopWords = open(config.stopWords_file, "r", encoding='utf-8').readlines()
+    return [word for word in wordList if word not in stopWords]
 
 
 def get_time_dif(start_time):

@@ -14,9 +14,9 @@ import numpy as np
 curPath = os.path.abspath(os.path.dirname(__file__))
 root_path = os.path.split(os.path.split(curPath)[0])[0]
 
-train_file = root_path + '/data/train_clean.tsv'
-dev_file = root_path + '/data/dev_clean.tsv'
-test_file = root_path + '/data/test_clean.tsv'
+train_file = root_path + '/data/train_clean.csv'
+dev_file = root_path + '/data/dev_clean.csv'
+test_file = root_path + '/data/test_clean.csv'
 stopWords_file = root_path + '/data/stopwords.txt'
 log_dir = root_path + '/logs/'
 
@@ -26,7 +26,7 @@ embedding_pretrained = torch.tensor(
                        np.load(root_path + '/data/' + embedding)["embeddings"].astype('float32')) \
                        if embedding != 'random' else None
 
-is_cuda = True
+is_cuda = False
 device = torch.device('cuda') if is_cuda else torch.device('cpu')
 class_list = [
     x.strip() for x in open(root_path + '/data/class.txt', encoding='UTF-8').readlines()
