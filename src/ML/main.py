@@ -7,6 +7,7 @@
 @Desciption: Machine Learning model main function
 '''
 import argparse
+
 from __init__ import *
 from src.utils import config
 from src.utils.tools import create_logger
@@ -17,6 +18,7 @@ parser.add_argument('--feature_engineering', default=True, type=bool, required=T
 parser.add_argument('--search_method', default='bayesian', type=str, required=True, help='grid / bayesian optimzation')
 parser.add_argument('--unbalance', default=True, type=bool, required=True, help='wether use imbalance tech')
 parser.add_argument('--imbalance_method', default='under_sampling', type=str, required=True, help='under_sampling, over_sampling, ensemble')
+parser.add_argument('--model_name', default='lgb_under_sampling', type=str, required=True, help='model_name')
 args = parser.parse_args()
 
 logger = create_logger(config.root_path + '/logs/main.log')
@@ -24,7 +26,7 @@ logger = create_logger(config.root_path + '/logs/main.log')
 
 if __name__ == '__main__':
     feature_engineering = args.feature_engineering
-    m = Models()
+    m = Models(model_path=config.root_path+'model/ml_model/' + args.model_name)
     if feature_engineering:
         m.unbalance_helper(imbalance_method=args.imbalance_method, search_method=args.search_method)
     else:

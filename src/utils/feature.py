@@ -21,8 +21,7 @@ from PIL import Image
 import torchvision.transforms as transforms
 
 
-def get_autoencoder_feature(train,
-                            test,
+def get_autoencoder_feature(data,
                             max_features,
                             max_len,
                             model,
@@ -40,6 +39,8 @@ def get_autoencoder_feature(train,
     '''
     ### TODO
     # 1. 返回autoencoder embedding
+    X, _ = format_data(data, max_features, max_len, tokenizer=tokenizer, shuffle=True)
+    data_ae = pd.DataFrame(model.predict(X, batch_size=64, verbose=1), columns=['ae' + str(i) for i in range(max_len)])
     return train, test
 
 
@@ -55,8 +56,10 @@ def get_lda_features(lda_model, document):
     '''
     ### TODO
     # 1. 返回lda feature
-    # bow = lda_model.id2word.doc2bow(document)
-    # return lda_model.get_document_topics(bow, per_word_topics=True)
+    topic_importances = lda_model.get_document_topics(document, minimum_probability=0)
+    topic_importances = np.array(topic_importances)
+    return topic_importances[:, 1]
+
 
 def get_pretrain_embedding(text, tokenizer, model):
     '''
@@ -70,6 +73,17 @@ def get_pretrain_embedding(text, tokenizer, model):
     ### TODO
     # 1. 返回bert embedding
     # hint  返回需要转换成cpu模式
+    text_dict = tokenizer.encode_plus(
+        text,
+        add_special_tokens=True,
+        max_length=400,
+        ad_to_max_length=True,
+        return_attention_mask=True,
+        return_tensors='pt'
+    )
+    input_ids, attention_mask, token_type_ids = text_dict['input_ids'], text_dict['attention_mask'], text_dict['token_type_ids'] 
+    _, res = model_name(input_ids.to(config.device), attention_mask=attention_mask.to(config.device), token_type_ids=token_type_ids.to(config.device))
+    return res.detach().cpu().numpy()[0]
 
 
 def get_transforms():
@@ -101,6 +115,11 @@ def get_img_embedding(cover, model):
     ### TODO
     # 1. 读取封面， 返回modal embedding
     # hint  返回需要转换成cpu模式
+    if str(cover)[-3:] != 'jpg':
+        return np.zeros((1, 1000))[0]
+    image = Image.open(cover).convert("RGB")
+    image = transforms(image).to(config.device)
+    return model(image.unsqueeze(0)).detach().cpu().numpy()[0]
 
 
 def get_embedding_feature(mldata):
@@ -184,9 +203,15 @@ def tag_part_of_speech(data):
     # 1. 计算形容词个数
     # 1. 计算动词个数
     words = [tuple(x) for x in list(pseg.cut(data))]
-    noun_count =
-    adjective_count =
-    verb_count =
+    noun_count = len([
+        w for w in words if w[i] in ('VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ')
+    ])
+    adjective_count = len([
+        w for w in words if w[i] in ('VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ')
+    ])
+    verb_count = len([
+        w for w in words if w[i] in ('VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ')
+    ])
     return noun_count, adjective_count, verb_count
 
 
@@ -198,31 +223,32 @@ def get_basic_feature(df):
     @return:
     df, dataframe
     '''
+    # https://zhuanlan.zhihu.com/p/30894133
     df['text'] = df['title'] + df['desc']
     df['queryCut'] = df['queryCut'].progress_apply(
         lambda x: [i if i not in ch2en.keys() else ch2en[i] for i in x])
-    # df['length'] = len(df['text'])### TODO 计算input 长度
-    # df['capitals'] = ### TODO 计算大写 个数
-    # df['caps_vs_length'] = ### TODO 计算大写个数和长度的比值
-    # df['num_exclamation_marks'] =### TODO 计算感叹号的个数
-    # df['num_question_marks'] =### TODO 计算问号长度
-    # df['num_punctuation'] =### TODO 计算标点符号个数
-    # df['num_symbols'] =### TODO 计算*&$% 的个数
-    # df['num_words'] =### TODO 计算词的个数
-    # df['num_unique_words'] =### TODO 计算唯一词的个数
-    # df['words_vs_unique'] =### TODO词的个数与唯一词个数的比例
+    df['length'] = df['queryCut'].progress_apply(lambda x: len(x)) ### TODO 计算input 长度 (df['queryCut'].str.len())
+    df['capitals'] = df['queryCut'].progress_apply(lambda x: sum(1 for c in x: if c.issupper())) ### TODO 计算大写 个数
+    df['caps_vs_length'] = df.progress_apply(lambda row: float(row['capitals'] / float(row['length']), axis=1) ### TODO 计算大写个数和长度的比值
+    df['num_exclamation_marks'] = df['queryCut'].progress_apply(lambda x: x.count('!')) ### TODO 计算感叹号的个数
+    df['num_question_marks'] = df['queryCut'].progress_apply(lambda x: x.count('?'))### TODO 计算问号长度
+    df['num_punctuation'] = df['queryCut'].progress_apply(lambda x: sum(x.count(w) for w in string.punctuation))  ### TODO 计算标点符号个数
+    df['num_symbols'] = df['queryCut'].progress_apply(lambda x: sum(x.count(w) for w in '*&$%'))### TODO 计算*&$% 的个数
+    df['num_words'] = df['queryCut'].progress_apply(lambda x: len(x)) ### TODO 计算词的个数
+    df['num_unique_words'] = df['queryCut'].progress_apply(lambda x: len(set(w for w in x)))### TODO 计算唯一词的个数
+    df['words_vs_unique'] = df['num_unique_words'] / df['num_words'] ### TODO词的个数与唯一词个数的比例
     df['nouns'], df['adjectives'], df['verbs'] = zip(
         *df['text'].progress_apply(lambda x: tag_part_of_speech(x)))
-    # df['nouns_vs_length'] =### TODO 计算名词个数与长度的占比
-    # df['adjectives_vs_length'] =### TODO 计算形容词个数与长度的占比
-    # df['verbs_vs_length'] =### TODO 计算动词个数与长度的占比
-    # df['nouns_vs_words'] =### TODO 计算名词个数与词的个数的占比
-    # df['adjectives_vs_words'] =### TODO 计算形容词个数与词的个数的占比
-    # df['verbs_vs_words'] =### TODO 计算动词个数与词的个数的占比
-    # # More Handy Features
-    # df["count_words_title"] =### TODO 计算title的词的个数
-    # df["mean_word_len"] =### TODO 计算词的平均长度
-    # df['punct_percent'] =### TODO 计算标点个数与词的个数的占比
+    df['nouns_vs_length'] = df['nouns'] / df['length']### TODO 计算名词个数与长度的占比
+    df['adjectives_vs_length'] = df['adjectives'] / df['length']### TODO 计算形容词个数与长度的占比
+    df['verbs_vs_length'] = df['verbs'] / df['length'] ### TODO 计算动词个数与长度的占比
+    df['nouns_vs_words'] = df['nouns'] / df['num_words']### TODO 计算名词个数与词的个数的占比
+    df['adjectives_vs_words'] = df['adjectives'] / df['num_words']### TODO 计算形容词个数与词的个数的占比
+    df['verbs_vs_words'] = df['verbs'] / df['num_words']### TODO 计算动词个数与词的个数的占比
+    # More Handy Features
+    df["count_words_title"] = df['queryCut'].progress_apply(lambda x: len([w for w in x if w.istitle()]))### TODO 计算title的词的个数
+    df["mean_word_len"] = df['text'].progress_apply(lambda x: np.mean([len(w) for w in x]))### TODO 计算词的平均长度
+    df['punct_percent'] = df['num_punctuation'] * 100 / df['num_words']### TODO 计算标点个数与词的个数的占比
     return df
 
 
@@ -280,9 +306,9 @@ def Find_embedding_with_windows(embedding_matrix, window_size=2,
     result_list = []
     for k1 in range(len(embedding_matrix)):
         if int(k1 + window_size) > len(embedding_matrix):
-            result_list.extend(embedding_matrix[k1:])
+            result_list.extend(np.mean(embedding_matrix[k1:]))
         else:
-            result_list.extend(embedding_matrix[k1:k1 + window_size])
+            result_list.extend(np.mean(embedding_matrix[k1:k1 + window_size]))
     if method == 'mean':
         return np.mean(result_list, axis=0)
     else:

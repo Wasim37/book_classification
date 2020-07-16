@@ -111,14 +111,20 @@ class Embedding(metaclass=SingletonMetaclass):
 
         logger.info('train lda')
         # hint 使用gensim
-        dictionary = corpora.Dictionary(self.data.text)
+        self.id2word = corpora.Dictionary(self.data.text)
         # corpus[0]: [(0, 1), (1, 1), (2, 1), (3, 1), (4, 1),...]
         # corpus是把每条新闻ID化后的结果，每个元素是新闻中的每个词语，在字典中的ID和频率
-        corpus = [dictionary.doc2bow(text) for text in self.data.text]
-        self.LDAmodel = models.LdaModel(corpus=corpus, id2word=dictionary, num_topics=10)
+        corpus = [self.id2word.doc2bow(text) for text in self.data.text]
+        self.LDAmodel = models.LdaMulticore(corpus=corpus,
+                                            id2word=self.id2word,
+                                            num_topics=30,
+                                            workers=4,
+                                            chunksize=4000,
+                                            passes=7,
+                                            alpha='asymmetrick')
 
         logger.info('train autoencoder')
-        self.ae.train(data=self.data)
+        self.ae.train(self.data)
 
     def saver(self):
         '''

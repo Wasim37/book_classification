@@ -95,12 +95,12 @@ if __name__ == '__main__':
     logger.info('Making dataset & dataloader...')
     ### TODO
     # 1. 使用自定义的MyDataset， 创建DataLoader
-    train_dataset =
-    train_dataloader =
-    dev_dataset =
-    dev_dataloader =
-    test_dataset =
-    test_dataloader =
+    train_dataset = MyDataset(config.train_file, dictionary, args.max_length, tokenizer=tokenizer, word=args.word)
+    train_dataloader = DataLoader(train_dataset, batch_size=config.batch_size, shuffle=True, drop_last=True, collate_fn=collate_fn)
+    dev_dataset = MyDataset(config.dev_file, dictionary, args.max_length, tokenizer=tokenizer, word=args.word)
+    dev_dataloader = DataLoader(dev_dataset, batch_size=config.batch_size, shuffle=True, drop_last=True, collate_fn=collate_fn)
+    test_dataset = MyDataset(config.test_file, dictionary, args.max_length, tokenizer=tokenizer, word=args.word)
+    test_dataloader = DataLoader(test_dataset, batch_size=config.batch_size, shuffle=True, drop_last=True, collate_fn=collate_fn)
 
     # train
 

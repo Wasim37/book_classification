@@ -25,4 +25,12 @@ class Model(nn.Module):
     def forward(self, x):
         ### TODO
         # 构建bert 分类模型
+        context = x[0]
+        mask = x[1]
+        token_type_ids = x[2]
+        _, pooled = self.bert(context,
+                              attention_mask=mask,
+                              token_type_ids=token_type_ids)
+        out = self.fc(pooled)
         return out
+        

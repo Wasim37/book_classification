@@ -67,7 +67,9 @@ def train(config, model, train_iter, dev_iter, test_iter):
         }]
         ### TODO
         # 1. 初始化AdamW 优化器
-        optimizer =
+        optimizer = AdamW(optimizer_grouped_parameters,
+                          lr=config.learning_rate,
+                          eps=config.eps)
 
 
 #         scheduler = get_linear_schedule_with_warmup(

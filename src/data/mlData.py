@@ -48,14 +48,23 @@ class MLData(object):
         # 1. 分词
         # 2. 去除停止词
         # 3. 将label 转换为id
+        self.train["text"] = self.train["title"] + self.train["desc"]
+        self.dev["text"] = self.train["title"] + self.train["desc"]
         self.train["queryCut"] = self.train['text'].apply(query_cut)
         self.dev["queryCut"] = self.dev['text'].apply(query_cut)
-        self.train["queryCutRMStopWord"] = self.train['queryCut'].apply(rm_stop_word)
-        self.dev["queryCutRMStopWord"] = self.dev['queryCut'].apply(rm_stop_word)
+        self.train["queryCutRMStopWord"] = self.train['queryCut'].apply(
+            lambda x: [word for word in x if word not in self.em.stopWords])
+        self.dev["queryCutRMStopWord"] = self.dev['queryCut'].apply(
+            lambda x: [word for word in x if word not in self.em.stopWords])
 
-        labelName = self.train.label.unique()
-        labelIndex = list(range(len(labelName)))
-        labelNameToIndex = dict(zip(labelName, labelIndex))
+        if os.path.exists(config.root_path + 'data/label2id.json'):
+            labelNameToIndex = json.load(open(config.root_path + 'data/label2id.json', encoding='utf-8'))
+        else:
+            labelName = self.train.label.unique()
+            labelIndex = list(range(len(labelName)))
+            labelNameToIndex = dict(zip(labelName, labelIndex))
+            with open(config.root_path + 'data/label2id.json', encoding='utf-8') as f:
+                json.dump({k: v for k, v in labelNameToIndex.items()}, f)
         self.train["labelIndex"] = self.train.label.map(labelNameToIndex)
         self.dev["labelIndex"] = self.dev.map(labelNameToIndex)
 
