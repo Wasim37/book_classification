@@ -19,7 +19,7 @@ logger = create_logger(config.log_dir + 'data.log')
 
 
 class MLData(object):
-    def __init__(self, debug_mode=False):
+    def __init__(self, debug_mode=False, train_model=True):
         '''
         @description: initlize ML dataset class
         @param {type}
@@ -57,16 +57,16 @@ class MLData(object):
         self.dev["queryCutRMStopWord"] = self.dev['queryCut'].apply(
             lambda x: [word for word in x if word not in self.em.stopWords])
 
-        if os.path.exists(config.root_path + 'data/label2id.json'):
-            labelNameToIndex = json.load(open(config.root_path + 'data/label2id.json', encoding='utf-8'))
+        if os.path.exists(config.root_path + '/data/label2id.json'):
+            labelNameToIndex = json.load(open(config.root_path + '/data/label2id.json', encoding='utf-8'))
         else:
             labelName = self.train.label.unique()
             labelIndex = list(range(len(labelName)))
             labelNameToIndex = dict(zip(labelName, labelIndex))
-            with open(config.root_path + 'data/label2id.json', encoding='utf-8') as f:
+            with open(config.root_path + '/data/label2id.json', 'w') as f:
                 json.dump({k: v for k, v in labelNameToIndex.items()}, f)
         self.train["labelIndex"] = self.train.label.map(labelNameToIndex)
-        self.dev["labelIndex"] = self.dev.map(labelNameToIndex)
+        self.dev["labelIndex"] = self.dev.label.map(labelNameToIndex)
 
     def process_data(self, method='word2vec'):
         '''

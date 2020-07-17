@@ -39,9 +39,14 @@ def get_autoencoder_feature(data,
     '''
     ### TODO
     # 1. 返回autoencoder embedding
-    X, _ = format_data(data, max_features, max_len, tokenizer=tokenizer, shuffle=True)
-    data_ae = pd.DataFrame(model.predict(X, batch_size=64, verbose=1), columns=['ae' + str(i) for i in range(max_len)])
-    return train, test
+    X, _ = format_data(data,
+                       max_features,
+                       max_len,
+                       tokenizer=tokenizer,
+                       shuffle=True)
+    data_ae = pd.DataFrame(model.predict(X, batch_size=64, verbose=1),
+                           columns=['ae' + str(i) for i in range(max_len)])
+    return data_ae
 
 
 def get_lda_features(lda_model, document):
@@ -56,7 +61,8 @@ def get_lda_features(lda_model, document):
     '''
     ### TODO
     # 1. 返回lda feature
-    topic_importances = lda_model.get_document_topics(document, minimum_probability=0)
+    topic_importances = lda_model.get_document_topics(document,
+                                                      minimum_probability=0)
     topic_importances = np.array(topic_importances)
     return topic_importances[:, 1]
 
@@ -81,8 +87,11 @@ def get_pretrain_embedding(text, tokenizer, model):
         return_attention_mask=True,
         return_tensors='pt'
     )
-    input_ids, attention_mask, token_type_ids = text_dict['input_ids'], text_dict['attention_mask'], text_dict['token_type_ids'] 
-    _, res = model_name(input_ids.to(config.device), attention_mask=attention_mask.to(config.device), token_type_ids=token_type_ids.to(config.device))
+    input_ids, attention_mask, token_type_ids = text_dict[
+        'input_ids'], text_dict['attention_mask'], text_dict['token_type_ids']
+    _, res = model(input_ids.to(config.device),
+                   attention_mask=attention_mask.to(config.device),
+                   token_type_ids=token_type_ids.to(config.device))
     return res.detach().cpu().numpy()[0]
 
 
@@ -204,13 +213,13 @@ def tag_part_of_speech(data):
     # 1. 计算动词个数
     words = [tuple(x) for x in list(pseg.cut(data))]
     noun_count = len([
-        w for w in words if w[i] in ('VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ')
+        w for w in words if w[1] in ('NN', 'NNS', 'NNP', 'NNPS')
     ])
     adjective_count = len([
-        w for w in words if w[i] in ('VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ')
+        w for w in words if w[1] in ('JJ', 'JJR', 'JJS')
     ])
     verb_count = len([
-        w for w in words if w[i] in ('VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ')
+        w for w in words if w[1] in ('VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ')
     ])
     return noun_count, adjective_count, verb_count
 
@@ -228,8 +237,8 @@ def get_basic_feature(df):
     df['queryCut'] = df['queryCut'].progress_apply(
         lambda x: [i if i not in ch2en.keys() else ch2en[i] for i in x])
     df['length'] = df['queryCut'].progress_apply(lambda x: len(x)) ### TODO 计算input 长度 (df['queryCut'].str.len())
-    df['capitals'] = df['queryCut'].progress_apply(lambda x: sum(1 for c in x: if c.issupper())) ### TODO 计算大写 个数
-    df['caps_vs_length'] = df.progress_apply(lambda row: float(row['capitals'] / float(row['length']), axis=1) ### TODO 计算大写个数和长度的比值
+    df['capitals'] = df['queryCut'].progress_apply(lambda x: sum(1 for c in x if c.isupper())) ### TODO 计算大写 个数
+    df['caps_vs_length'] = df.progress_apply(lambda row: float(row['capitals']) / float(row['length']), axis=1) ### TODO 计算大写个数和长度的比值
     df['num_exclamation_marks'] = df['queryCut'].progress_apply(lambda x: x.count('!')) ### TODO 计算感叹号的个数
     df['num_question_marks'] = df['queryCut'].progress_apply(lambda x: x.count('?'))### TODO 计算问号长度
     df['num_punctuation'] = df['queryCut'].progress_apply(lambda x: sum(x.count(w) for w in string.punctuation))  ### TODO 计算标点符号个数
@@ -306,9 +315,9 @@ def Find_embedding_with_windows(embedding_matrix, window_size=2,
     result_list = []
     for k1 in range(len(embedding_matrix)):
         if int(k1 + window_size) > len(embedding_matrix):
-            result_list.extend(np.mean(embedding_matrix[k1:]))
+            result_list.extend(np.mean(embedding_matrix[k1:], axis=0))
         else:
-            result_list.extend(np.mean(embedding_matrix[k1:k1 + window_size]))
+            result_list.extend(np.mean(embedding_matrix[k1:k1 + window_size], axis=0))
     if method == 'mean':
         return np.mean(result_list, axis=0)
     else:

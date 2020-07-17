@@ -73,8 +73,11 @@ class Embedding(metaclass=SingletonMetaclass):
         @return: None
         '''
         logger.info('train tfidf')
-        count_vect = TfidfVectorizer()
-        self.tfidf = count_vect.fit_transform(self.data.text)
+        count_vect = TfidfVectorizer(stop_words=self.stopWords,
+                                     max_df=0.4,
+                                     min_df=0.001,
+                                     ngram_range=(1, 2))
+        self.tfidf = count_vect.fit(self.data.text)
 
         logger.info('train word2vec')
         self.data['text'] = self.data.text.apply(lambda x: x.split(' '))
@@ -99,29 +102,24 @@ class Embedding(metaclass=SingletonMetaclass):
                                     size=300,
                                     window=3,
                                     alpha=0.03,
-                                    min_alpha=0.0007,
                                     min_count=2,
-                                    max_vocab_size=1000,
-                                    word_ngrams=1,
-                                    sample=1e-3,
-                                    seed=1,
-                                    workers=1,
-                                    negative=5,
-                                    iter=1)
+                                    iter=30,
+                                    max_n=3,
+                                    word_ngrams=2,
+                                    max_vocab_size=50000)
 
         logger.info('train lda')
         # hint 使用gensim
-        self.id2word = corpora.Dictionary(self.data.text)
-        # corpus[0]: [(0, 1), (1, 1), (2, 1), (3, 1), (4, 1),...]
-        # corpus是把每条新闻ID化后的结果，每个元素是新闻中的每个词语，在字典中的ID和频率
-        corpus = [self.id2word.doc2bow(text) for text in self.data.text]
+        # https://www.lzys.cc/p/1170281.html (TypeError: doc2bow expects an array of unicode tokens on input, not a single string)
+        self.id2word = corpora.Dictionary([self.data.text])
+        corpus = [self.id2word.doc2bow([text]) for text in self.data.text]
         self.LDAmodel = models.LdaMulticore(corpus=corpus,
                                             id2word=self.id2word,
                                             num_topics=30,
                                             workers=4,
                                             chunksize=4000,
                                             passes=7,
-                                            alpha='asymmetrick')
+                                            alpha='asymmetric')
 
         logger.info('train autoencoder')
         self.ae.train(self.data)

@@ -11,10 +11,11 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "args": [
-                "--feature_engineering", "True",
+                "--feature_engineering", "False",
                 "--search_method", "bayesian",
                 "--unbalance", "True",
-                "--imbalance_method", "under_sampling"
+                "--imbalance_method", "under_sampling",
+                "--model_name", "lgb_under_sampling"
             ]
         }
     ]

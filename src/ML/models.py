@@ -18,7 +18,7 @@ from imblearn.under_sampling import ClusterCentroids
 from sklearn.ensemble import RandomForestClassifier
 import joblib
 from sklearn.linear_model import LogisticRegression
-from sklearn.naive_bayes import MultinomialNB
+from sklearn.naive_bayes import MultinomialNB, GaussianNB
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from transformers import BertModel, BertTokenizer
@@ -88,23 +88,24 @@ class Models(object):
             else:
                 self.models = [
                     RandomForestClassifier(n_estimators=500,
-                                        max_depth=5,
-                                        random_state=0),
+                                           max_depth=5,
+                                           random_state=0),
                     LogisticRegression(solver='liblinear', random_state=0),
-                    MultinomialNB(),
+                    # MultinomialNB(),
+                    # GaussianNB(),
                     SVC(),
                     lgb.LGBMClassifier(objective='multiclass',
-                                    n_jobs=10,
-                                    num_class=33,
-                                    num_leaves=30,
-                                    reg_alpha=10,
-                                    reg_lambda=200,
-                                    max_depth=3,
-                                    learning_rate=0.05,
-                                    n_estimators=2000,
-                                    bagging_freq=1,
-                                    bagging_fraction=0.8,
-                                    feature_fraction=0.8),
+                                       n_jobs=10,
+                                       num_class=33,
+                                       num_leaves=30,
+                                       reg_alpha=10,
+                                       reg_lambda=200,
+                                       max_depth=3,
+                                       learning_rate=0.05,
+                                       n_estimators=2000,
+                                       bagging_freq=1,
+                                       bagging_fraction=0.8,
+                                       feature_fraction=0.8),
                 ]
 
     def feature_engineer(self):
@@ -118,16 +119,12 @@ class Models(object):
         y_test, label of test set
         '''
         logger.info("generate embedding feature ")
-        # train_tfidf, train = get_embedding_feature(self.ml_data.train, self.ml_data.em.tfidf, self.ml_data.em.w2v)
-        # test_tfidf, test = get_embedding_feature(self.ml_data.test, self.ml_data.em.tfidf, self.ml_data.em.w2v)
         train_tfidf, test_tfidf, train, test = get_embedding_feature(self.ml_data)
 
 
         logger.info("generate basic feature ")
-        #### 本代码中的函数实现均在utils/feature.py中
-        #### 本代码中的函数实现均在utils/feature.py中
-        #### 本代码中的函数实现均在utils/feature.py中
-        ### TODO
+        ### 本代码中的函数实现均在utils/feature.py中
+        ## TODO
         # 1. 获取 基本的 NLP feature
         train = get_basic_feature(train)
         test = get_basic_feature(test)
@@ -143,29 +140,45 @@ class Models(object):
 
         ### TODO
         # 1. 获取 三大CV模型的 modal embedding
-        train['res_embedding'] = train['cover'].progress_apply(lambda x : get_img_embedding(x, self.res_model))
-        test['res_embedding'] = test['cover'].progress_apply(lambda x : get_img_embedding(x, self.res_model))
+        train['res_embedding'] = train['cover'].progress_apply(
+            lambda x: get_img_embedding(x, self.res_model))
+        test['res_embedding'] = test['cover'].progress_apply(
+            lambda x: get_img_embedding(x, self.res_model))
 
-        train['resnext_embedding'] = train['cover'].progress_apply(lambda x : get_img_embedding(x, self.resnext_model))
-        test['resnext_embedding'] = test['cover'].progress_apply(lambda x : get_img_embedding(x, self.resnext_model))
+        train['resnext_embedding'] = train['cover'].progress_apply(
+            lambda x: get_img_embedding(x, self.resnext_model))
+        test['resnext_embedding'] = test['cover'].progress_apply(
+            lambda x: get_img_embedding(x, self.resnext_model))
 
-        train['wide_embedding'] = train['cover'].progress_apply(lambda x : get_img_embedding(x, self.wide_model))
-        test['wide_embedding'] = test['cover'].progress_apply(lambda x : get_img_embedding(x, self.wide_model))
+        train['wide_embedding'] = train['cover'].progress_apply(
+            lambda x: get_img_embedding(x, self.wide_model))
+        test['wide_embedding'] = test['cover'].progress_apply(
+            lambda x: get_img_embedding(x, self.wide_model))
 
         logger.info("generate bert feature ")
         ### TODO
         # 1. 获取bert embedding
-        train['bert_embedding'] = train['cover'].progress_apply(lambda x : get_pretrain_embedding(x, self.bert_tonkenizer, self.bert))
-        test['bert_embedding'] = test['cover'].progress_apply(lambda x : get_pretrain_embedding(x, self.bert_tonkenizer, self.bert))
+        train['bert_embedding'] = train['text'].progress_apply(
+            lambda x: get_pretrain_embedding(x, self.bert_tonkenizer, self.bert
+                                             ))
+        test['bert_embedding'] = test['text'].progress_apply(
+            lambda x: get_pretrain_embedding(x, self.bert_tonkenizer, self.bert
+                                             ))
 
         logger.info("generate lda feature ")
 
-        ### TODO
+        # ## TODO
         # 1. 获取 lda feature
-        train['bow'] = train['queryCutRMStopWords'].apply(lambda x : self.ml_data.em.lda.id2word.doc2box(x))
-        test['bow'] = test['queryCutRMStopWords'].apply(lambda x : self.ml_data.em.lda.id2word.doc2box(x))
-        train['lda'] = list(map(lambda doc : get_lda_features(self.ml_data.em.lda, doc), train['bow']))
-        test['lda'] = list(map(lambda doc : get_lda_features(self.ml_data.em.lda, doc), test['bow']))
+        train['bow'] = train['queryCutRMStopWords'].apply(
+            lambda x: self.ml_data.em.lda.id2word.doc2bow([x]))
+        test['bow'] = test['queryCutRMStopWords'].apply(
+            lambda x: self.ml_data.em.lda.id2word.doc2bow([x]))
+        train['lda'] = list(
+            map(lambda doc: get_lda_features(self.ml_data.em.lda, doc),
+                train['bow']))
+        test['lda'] = list(
+            map(lambda doc: get_lda_features(self.ml_data.em.lda, doc),
+                test['bow']))
 
         logger.info("generate autoencoder feature ")
         ### TODO
@@ -173,13 +186,13 @@ class Models(object):
         train_ae = get_autoencoder_feature(
             train,
             self.ml_data.em.ae.max_features,
-            self.ml_data.ae.em.max_len,
+            self.ml_data.em.ae.max_len,
             self.ml_data.em.ae.model,
             tokenizer=self.ml_data.em.ae.tokenizer)
         test_ae = get_autoencoder_feature(
             test,
             self.ml_data.em.ae.max_features,
-            self.ml_data.ae.em.max_len,
+            self.ml_data.em.ae.max_len,
             self.ml_data.em.ae.model,
             tokenizer=self.ml_data.em.ae.tokenizer)
 
@@ -262,7 +275,7 @@ class Models(object):
         if imbalance_method != 'ensemble':
             ### TODO
             # 1. 使用 参数搜索技术
-            param = self.param_search(search_method = search_method)
+            param = self.param_search(search_method=search_method)
             param['params']['num_leaves'] = int(param['params']['num_leaves'])
             param['params']['max_depth'] = int(param['params']['max_depth'])
             self.model = self.model.set_params(**param['params'])
