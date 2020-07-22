@@ -22,11 +22,10 @@ from src.utils import config
 from transformers import BertTokenizer, RobertaTokenizer, XLNetTokenizer
 
 parser = argparse.ArgumentParser(description='Chinese Text Classification')
-parser.add_argument(
-    '--model',
-    type=str,
-    required=True,
-    help='choose a model: CNN, RNN, RCNN, RNN_Att, DPCNN, Transformer')
+parser.add_argument('--model',
+                    type=str,
+                    required=True,
+                    help='choose a model: CNN, RNN, RCNN, RNN_Att, DPCNN, Transformer')
 parser.add_argument('--word',
                     default=True,
                     type=bool,
@@ -47,6 +46,8 @@ if __name__ == '__main__':
     model_name = args.model
 
     x = import_module('models.' + model_name)
+    # BERT下载, https://github.com/google-research/bert
+    # https://huggingface.co/transformers/model_doc/bert.html
     if model_name in ['bert', 'xlnet', 'roberta']:
         config.bert_path = config.root_path + '/model/' + model_name + '/'
         if 'bert' in model_name:
@@ -57,7 +58,6 @@ if __name__ == '__main__':
             config.tokenizer = RobertaTokenizer.from_pretrained(config.bert_path)
         else:
             raise NotImplementedError
-
         config.save_path = config.root_path + 'model/saved_dict/' + model_name + '.ckpt'  # 模型训练结果
         config.log_path = config.root_path + '/logs/' + model_name
         config.hidden_size = 768
@@ -65,6 +65,7 @@ if __name__ == '__main__':
         config.gradient_accumulation_steps = 1
         config.word = True
         config.max_length = 400
+
     np.random.seed(1)
     torch.manual_seed(1)
     torch.cuda.manual_seed_all(1)
@@ -72,7 +73,6 @@ if __name__ == '__main__':
 
     start_time = time.time()
     logger.info("Loading data...")
-
     logger.info('Building dictionary ...')
 
     data = pd.read_csv(config.train_file, sep='\t')
@@ -95,16 +95,39 @@ if __name__ == '__main__':
     logger.info('Making dataset & dataloader...')
     ### TODO
     # 1. 使用自定义的MyDataset， 创建DataLoader
-    train_dataset = MyDataset(config.train_file, dictionary, args.max_length, tokenizer=tokenizer, word=args.word)
-    train_dataloader = DataLoader(train_dataset, batch_size=config.batch_size, shuffle=True, drop_last=True, collate_fn=collate_fn)
-    dev_dataset = MyDataset(config.dev_file, dictionary, args.max_length, tokenizer=tokenizer, word=args.word)
-    dev_dataloader = DataLoader(dev_dataset, batch_size=config.batch_size, shuffle=True, drop_last=True, collate_fn=collate_fn)
-    test_dataset = MyDataset(config.test_file, dictionary, args.max_length, tokenizer=tokenizer, word=args.word)
-    test_dataloader = DataLoader(test_dataset, batch_size=config.batch_size, shuffle=True, drop_last=True, collate_fn=collate_fn)
+    train_dataset = MyDataset(config.train_file,
+                              dictionary,
+                              args.max_length,
+                              tokenizer=tokenizer,
+                              word=args.word)
+    train_dataloader = DataLoader(train_dataset,
+                                  batch_size=config.batch_size,
+                                  shuffle=True,
+                                  drop_last=True,
+                                  collate_fn=collate_fn)
+    dev_dataset = MyDataset(config.dev_file,
+                            dictionary,
+                            args.max_length,
+                            tokenizer=tokenizer,
+                            word=args.word)
+    dev_dataloader = DataLoader(dev_dataset,
+                                batch_size=config.batch_size,
+                                shuffle=True,
+                                drop_last=True,
+                                collate_fn=collate_fn)
+    test_dataset = MyDataset(config.test_file,
+                             dictionary,
+                             args.max_length,
+                             tokenizer=tokenizer,
+                             word=args.word)
+    test_dataloader = DataLoader(test_dataset,
+                                 batch_size=config.batch_size,
+                                 shuffle=True,
+                                 drop_last=True,
+                                 collate_fn=collate_fn)
 
     # train
-
-    #     conf.n_vocab = dictionary.max_vocab_size
+    # conf.n_vocab = dictionary.max_vocab_size
     model = x.Model(config).to(config.device)
     if model_name != 'Transformer':
         init_network(model)

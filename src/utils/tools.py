@@ -42,13 +42,11 @@ def get_score(Train_label, Test_label, Train_predict_label,
     Test_label, ground truth label of test dataset
     @return:acc, f1_score
     '''
-    return metrics.accuracy_score(
-        Train_label, Train_predict_label), metrics.accuracy_score(
-            Test_label, Test_predict_label), metrics.recall_score(
-                Test_label, Test_predict_label,
-                average='micro'), metrics.f1_score(Test_label,
-                                                   Test_predict_label,
-                                                   average='weighted')
+    per = metrics.precision_score(Train_label, Train_predict_label)
+    acc = metrics.accuracy_score(Test_label, Test_predict_label)
+    recall = metrics.recall_score(Test_label, Test_predict_label, average='micro')
+    f1 = metrics.f1_score(Test_label, Test_predict_label, average='weighted')
+    return per, acc, recall, f1
 
 
 def query_cut(query):
@@ -180,6 +178,7 @@ def Grid_Train_model(model, Train_features, Test_features, Train_label,
         'reg_alpha': [5, 10],
         'reg_lambda': [10, 30, 50]
     }
+
     # 有了gridsearch我们便不需要fit函数
     gsearch = GridSearchCV(model,
                            param_grid=parameters,
@@ -238,6 +237,7 @@ def bayes_parameter_opt_lgb(trn_data,
                                  random_state=0)
     # optimize
     lgbBO.maximize(init_points=init_round, n_iter=opt_round)
+
     # output optimization process
     if output_process:
         lgbBO.points_to_csv("bayes_opt_result.csv")
@@ -366,8 +366,9 @@ def formate_data(train, test, train_tfidf, test_tfidf, train_ae, test_ae):
         for i in [
             'w2v_label_mean', 'w2v_label_max', 'w2v_mean', 'w2v_max',
             'w2v_win_2_mean', 'w2v_win_3_mean', 'w2v_win_4_mean',
-            'w2v_win_2_max', 'w2v_win_3_max', 'w2v_win_4_max', 'res_embedding',
-            'resnext_embedding', 'wide_embedding', 'bert_embedding', 'lda'
+            'w2v_win_2_max', 'w2v_win_3_max', 'w2v_win_4_max',
+            'res_embedding', 'resnext_embedding', 'wide_embedding',
+            'bert_embedding', 'lda'
         ]
     ],
                       axis=1).fillna(0.0)
@@ -389,8 +390,9 @@ def formate_data(train, test, train_tfidf, test_tfidf, train_ae, test_ae):
         for i in [
             'w2v_label_mean', 'w2v_label_max', 'w2v_mean', 'w2v_max',
             'w2v_win_2_mean', 'w2v_win_3_mean', 'w2v_win_4_mean',
-            'w2v_win_2_max', 'w2v_win_3_max', 'w2v_win_4_max', 'res_embedding',
-            'resnext_embedding', 'wide_embedding', 'bert_embedding', 'lda'
+            'w2v_win_2_max', 'w2v_win_3_max', 'w2v_win_4_max',
+            'res_embedding','resnext_embedding', 'wide_embedding',
+            'bert_embedding', 'lda'
         ]
     ],
                      axis=1).fillna(0.0)

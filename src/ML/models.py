@@ -10,8 +10,10 @@
 import os
 
 import lightgbm as lgb
+import numpy as np
 import torchvision
 import json
+import pandas as pd
 from imblearn.ensemble import BalancedBaggingClassifier
 from imblearn.over_sampling import SMOTE
 from imblearn.under_sampling import ClusterCentroids
@@ -26,7 +28,7 @@ from transformers import BertModel, BertTokenizer
 from __init__ import *
 from src.data.mlData import MLData
 from src.utils import config
-from src.utils.config import root_path
+from src.utils.config import root_path, queryCut
 from src.utils.tools import (Grid_Train_model, bayes_parameter_opt_lgb,
                              create_logger, formate_data, get_score)
 from src.utils.feature import (get_embedding_feature, get_img_embedding,
@@ -69,7 +71,7 @@ class Models(object):
         if not train_model:
             self.load(model_path)
             labelNameToIndex = json.load(open(config.root_path + 'data/label2id.json', encoding='utf-8'))
-            self.id2label = {k: v for k, v in labelNameToIndex.items()}
+            self.ix2label = {k: v for k, v in labelNameToIndex.items()}
         else:
             if feature_engineer:
                 self.model = lgb.LGBMClassifier(objective='multiclass',
@@ -120,7 +122,6 @@ class Models(object):
         '''
         logger.info("generate embedding feature ")
         train_tfidf, test_tfidf, train, test = get_embedding_feature(self.ml_data)
-
 
         logger.info("generate basic feature ")
         ### 本代码中的函数实现均在utils/feature.py中
@@ -215,8 +216,20 @@ class Models(object):
         @return: None
         '''
         if search_method == 'grid':
+            model = lgb.LGBMClassifier(objective='multiclass',
+                                       n_jobs=10,
+                                       num_class=33,
+                                       num_leaves=30,
+                                       reg_alpha=10,
+                                       reg_lambda=200,
+                                       max_depth=3,
+                                       learning_rate=0.05,
+                                       n_estimators=2000,
+                                       bagging_freq=1,
+                                       bagging_fraction=0.8,
+                                       feature_fraction=0.8)
             logger.info("use grid search")
-            self.model = Grid_Train_model(self.model, self.X_train,
+            self.model = Grid_Train_model(model, self.X_train,
                                           self.X_test, self.y_train,
                                           self.y_test)
         elif search_method == 'bayesian':
@@ -224,18 +237,12 @@ class Models(object):
             trn_data = lgb.Dataset(data=self.X_train,
                                    label=self.y_train,
                                    free_raw_data=False)
-            tst_data = lgb.Dataset(data=self.X_test,
-                                   label=self.y_test,
-                                   free_raw_data=False)
+            # tst_data = lgb.Dataset(data=self.X_test,
+            #                        label=self.y_test,
+            #                        free_raw_data=False)
             param = bayes_parameter_opt_lgb(trn_data)
             logger.info("best param", param)
-            param['objective'] = 'multiclass'
-            param['metric'] = 'auc'
-            self.model = lgb.train(param,
-                                   trn_data,
-                                   valid_sets=[trn_data, tst_data],
-                                   verbose_eval=1000,
-                                   early_stopping_rounds=100)
+            return param
 
     def unbalance_helper(self,
                          imbalance_method='under_sampling',
@@ -275,10 +282,13 @@ class Models(object):
         if imbalance_method != 'ensemble':
             ### TODO
             # 1. 使用 参数搜索技术
-            param = self.param_search(search_method=search_method)
-            param['params']['num_leaves'] = int(param['params']['num_leaves'])
-            param['params']['max_depth'] = int(param['params']['max_depth'])
-            self.model = self.model.set_params(**param['params'])
+            if search_method == 'grid':
+                self.param_search(search_method=search_method)
+            elif search_method == 'bayesian':
+                param = self.param_search(search_method=search_method)
+                param['params']['num_leaves'] = int(param['params']['num_leaves'])
+                param['params']['max_depth'] = int(param['params']['max_depth'])
+                self.model = self.model.set_params(**param['params'])
         logger.info('fit model ')
         self.model.fit(self.X_train, self.y_train)
         ### TODO
@@ -334,6 +344,49 @@ class Models(object):
 
             # 输出F1-score
             logger.info(model_name + '_' + 'test F1_score %s' % f1)
+
+    def process(self, title, desc):
+        # 处理数据, 生成模型预测所需要的特征
+        df = pd.DataFrame([[title, desc]], columns=['title', 'desc'])
+        df['text'] = df['title'] + df['desc']
+        df["queryCut"] = df['text'].apply(queryCut)
+        df["queryCutRMStopWord"] = df["queryCut"].apply(
+            lambda x:
+            [word for word in x if word not in self.ml_data.em.stopWords])
+
+        df_tfidf, df = get_embedding_feature(df, self.ml_data.em.tfidf, self.ml_data.em.w2v)
+
+        print("generate basic feature ")
+        df = get_basic_feature(df)
+
+        print("generate modal feature ")
+        df['cover'] = ''
+        df['res_embedding'] = df.cover.progress_apply(lambda x: get_img_embedding(x, self.res_model))
+        df['resnext_embedding'] = df.cover.progress_apply(lambda x: get_img_embedding(x, self.resnext_model))
+        df['wide_embedding'] = df.cover.progress_apply(lambda x: get_img_embedding(x, self.wide_model))
+
+        print("generate bert feature ")
+        df['bert_embedding'] = df.text.progress_apply(
+            lambda x: get_pretrain_embedding(x, self.bert_tonkenizer, self.bert
+                                             ))
+
+        print("generate lda feature ")
+        df['bow'] = df['queryCutRMStopWord'].apply(lambda x: self.ml_data.em.lda.id2word.doc2bow(x))
+        df['lda'] = list(map(lambda doc: get_lda_features(self.ml_data.em.lda, doc), df.bow))
+
+        print("generate autoencoder feature ")
+        df_ae = get_autoencoder_feature(df,
+                                        self.ml_data.em.ae.max_features,
+                                        self.ml_data.em.ae.max_len,
+                                        self.ml_data.em.ae.model,
+                                        tokenizer=self.ml_data.em.ae.tokenizer)
+
+        print("formate data")
+        df['labelIndex'] = 1
+        df = formate_data(df, df_tfidf, df_ae)
+        cols = [x for x in df.columns if str(x) not in ['labelIndex']]
+        X_train = df[cols]
+        return X_train
 
     def predict(self, title, desc):
         '''

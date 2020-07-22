@@ -32,20 +32,24 @@ class AutoEncoder(object):
 
         # Input shape
         inp = Input(shape=(self.max_len, ))
-
+        # 查找每个句子的embedding
         encoder = Embedding(self.max_features, 50)(inp)
+        # encoder 第一层双向lstm
         encoder = Bidirectional(LSTM(75, return_sequences=True))(encoder)
+        # encoder 第二层lstm
         encoder = Bidirectional(
             LSTM(25,
                  return_sequences=True,
                  activity_regularizer=regularizers.l1(10e-5)))(encoder)
 
+        # decoder 双向lstm
         decoder = Bidirectional(LSTM(75, return_sequences=True))(encoder)
+        # pooling
         decoder = GlobalMaxPooling1D()(decoder)
+        # 两层 全联接 改变维度大小
         decoder = Dense(50, activation='relu')(decoder)
-
         decoder = Dense(self.max_len)(decoder)
-
+        # 编译模型
         self.model = Model(inputs=inp, outputs=decoder)
         self.model.compile(loss='mean_squared_error',
                            optimizer='adam',
@@ -71,7 +75,7 @@ class AutoEncoder(object):
 
     def save(self):
         '''
-        @description: save autoencoder model
+        @description: 保存模型， 只保存encoder部分， 根据encoder的输出 获取编码后的向量
         @param {type} None
         @return: None
         '''
@@ -80,6 +84,8 @@ class AutoEncoder(object):
         ### TODO
         # 1. 保存 模型文件到/model/embedding/目录下
         self.model.save_weights(root_path + '/model/embedding/autoencoder')
+        self.encoder.save_weights(root_path + '/model/embedding/autoencoder_encoder')
+
 
     def load(self):
         '''
@@ -91,3 +97,4 @@ class AutoEncoder(object):
         ### TODO
         # 1. 加载 模型文件
         self.model.load_weights(root_path + '/model/embedding/autoencoder')
+        self.encoder.load_weights(root_path + '/model/embedding/autoencoder_encoder')

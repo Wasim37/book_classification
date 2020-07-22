@@ -312,12 +312,23 @@ def Find_embedding_with_windows(embedding_matrix, window_size=2,
     @return: ndarray of embedding
     '''
     # 最终的词向量
-    result_list = []
+    # result_list = []
+    # for k1 in range(len(embedding_matrix)):
+    #     if int(k1 + window_size) > len(embedding_matrix):
+    #         result_list.extend(np.mean(embedding_matrix[k1:], axis=0))
+    #     else:
+    #         result_list.extend(np.mean(embedding_matrix[k1:k1 + window_size], axis=0))
+    # if method == 'mean':
+    #     return np.mean(result_list, axis=0)
+    # else:
+    #     return np.max(result_list, axis=0)
+    
+    result_list = np.zeros(config.embed)
     for k1 in range(len(embedding_matrix)):
         if int(k1 + window_size) > len(embedding_matrix):
-            result_list.extend(np.mean(embedding_matrix[k1:], axis=0))
+            result_list = np.vstack((result_list, np.mean(embedding_matrix[k1:], axis=0)))
         else:
-            result_list.extend(np.mean(embedding_matrix[k1:k1 + window_size], axis=0))
+            result_list = np.vstack((result_list, np.mean(embedding_matrix[k1:k1 + window_size], axis=0)))
     if method == 'mean':
         return np.mean(result_list, axis=0)
     else:
@@ -344,8 +355,9 @@ def Find_Label_embedding(example_matrix, label_embedding, method='mean'):
     '''
 
     # 根据矩阵乘法来计算label与word之间的相似度
-    similarity_matrix = np.dot(example_matrix, label_embedding.T) / (
-        np.linalg.norm(example_matrix) * (np.linalg.norm(label_embedding)))
+    # similarity_matrix = np.dot(example_matrix, label_embedding.T) / (
+    #     np.linalg.norm(example_matrix) * (np.linalg.norm(label_embedding)))
+    similarity_matrix = np.dot(example_matrix, label_embedding.T)
 
     # 然后对相似矩阵进行均值池化，则得到了“类别-词语”的注意力机制
     # 这里可以使用max-pooling和mean-pooling

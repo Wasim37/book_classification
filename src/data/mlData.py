@@ -42,8 +42,8 @@ class MLData(object):
         self.train = pd.read_csv(config.root_path + '/data/train.csv', sep='\t').dropna()
         self.dev = pd.read_csv(config.root_path + '/data/dev.csv', sep='\t').dropna()
         if self.debug_mode:
-            self.train = self.train.sample(n=1000).reset_index(drop=True)
-            self.dev = self.dev.sample(n=100).reset_index(drop=True)
+            self.train = self.train.sample(n=100).reset_index(drop=True)
+            self.dev = self.dev.sample(n=10).reset_index(drop=True)
         ### TODO:
         # 1. 分词
         # 2. 去除停止词
@@ -57,7 +57,7 @@ class MLData(object):
         self.dev["queryCutRMStopWord"] = self.dev['queryCut'].apply(
             lambda x: [word for word in x if word not in self.em.stopWords])
 
-        if os.path.exists(config.root_path + '/data/label2id.json'):
+        if os.path.exists(config.root_path + '/data/label2id1.json'):
             labelNameToIndex = json.load(open(config.root_path + '/data/label2id.json', encoding='utf-8'))
         else:
             labelName = self.train.label.unique()

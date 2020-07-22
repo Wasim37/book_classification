@@ -24,16 +24,18 @@ sess = keras.backend.get_session()
 model = Models(model_path=config.root_path + '/model/ml_model/lightgbm', train_model=False)
 
 app = Flask(__name__)
-# depth filepath
-
-
 @app.route('/predict', methods=["POST"])
 def gen_ans():
     ### TODO
     # 1. 接受request 输入 并返回预测结果
     result = {}
-    title = request.form['title']
-    desc = request.form['desc']
+    title = request.form.get('title')
+    desc = request.form.get('desc')
+    if not title:
+        return u'缺失title参数'
+    if not desc:
+        return u'缺失desc参数'
+
     with sess.as_default():
         with graph.as_default():
             label, score = model.predict(title, desc)

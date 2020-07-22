@@ -12,7 +12,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--feature_engineering", "False",
-                "--search_method", "bayesian",
+                "--search_method", "grid",
                 "--unbalance", "True",
                 "--imbalance_method", "under_sampling",
                 "--model_name", "lgb_under_sampling"
