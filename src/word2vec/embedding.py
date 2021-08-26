@@ -1,8 +1,8 @@
 '''
-@Author: xiaoyao jiang
+@Author: wangxin
 @Date: 2020-04-08 17:22:54
-@LastEditTime: 2020-07-06 22:01:20
-@LastEditors: xiaoyao jiang
+LastEditTime: 2021-08-26 15:15:02
+LastEditors: Please set LastEditors
 @Description: train embedding & tfidf & autoencoder
 @FilePath: /bookClassification(ToDo)/src/word2vec/embedding.py
 '''
@@ -126,7 +126,7 @@ class Embedding(metaclass=SingletonMetaclass):
 
     def saver(self):
         '''
-        @description: save all model 
+        @description: save all model
         @param {type} None
         @return: None
         '''
@@ -135,14 +135,10 @@ class Embedding(metaclass=SingletonMetaclass):
         joblib.dump(self.tfidf, root_path + '/model/embedding/tfidf')
 
         logger.info('save w2v model')
-        self.w2v.wv.save_word2vec_format(root_path +
-                                         '/model/embedding/w2v.bin',
-                                         binary=False)
+        self.w2v.wv.save_word2vec_format(root_path + '/model/embedding/w2v.bin', binary=False)
 
         logger.info('save fast model')
-        self.fast.wv.save_word2vec_format(root_path +
-                                          '/model/embedding/fast.bin',
-                                          binary=False)
+        self.fast.wv.save_word2vec_format(root_path + '/model/embedding/fast.bin', binary=False)
 
         logger.info('save lda model')
         self.LDAmodel.save(root_path + '/model/embedding/lda')

@@ -1,8 +1,8 @@
 '''
-@Author: xiaoyao jiang
+@Author: wangxin
 @Date: 2020-04-08 15:17:27
-@LastEditTime: 2020-07-06 15:24:06
-@LastEditors: xiaoyao jiang
+LastEditTime: 2021-08-26 15:54:35
+LastEditors: Please set LastEditors
 @Description: all model config
 @FilePath: /bookClassification/src/utils/config.py
 '''
@@ -23,8 +23,8 @@ log_dir = root_path + '/logs/'
 # generate dl config
 embedding = 'random'
 embedding_pretrained = torch.tensor(
-                       np.load(root_path + '/data/' + embedding)["embeddings"].astype('float32')) \
-                       if embedding != 'random' else None
+    np.load(root_path + '/data/' + embedding)["embeddings"].astype('float32')) \
+    if embedding != 'random' else None
 
 is_cuda = False
 device = torch.device('cuda') if is_cuda else torch.device('cpu')

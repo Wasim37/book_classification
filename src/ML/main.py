@@ -1,8 +1,8 @@
 '''
-@Author: xiaoyao jiang
-@LastEditors: xiaoyao jiang
+@Author: wangxin
+LastEditors: Please set LastEditors
 @Date: 2020-07-01 15:52:07
-@LastEditTime: 2020-07-01 16:05:55
+LastEditTime: 2021-08-26 14:25:57
 @FilePath: /bookClassification/src/ML/main.py
 @Desciption: Machine Learning model main function
 '''
@@ -26,9 +26,10 @@ logger = create_logger(config.root_path + '/logs/main.log')
 
 if __name__ == '__main__':
     feature_engineering = args.feature_engineering
-    m = Models(model_path=config.root_path+'model/ml_model/' + args.model_name)
+    m = Models(model_path=config.root_path + 'model/ml_model/' + args.model_name)
     if feature_engineering:
-        m.unbalance_helper(imbalance_method=args.imbalance_method, search_method=args.search_method)
+        m.unbalance_helper(imbalance_method=args.imbalance_method,
+                           search_method=args.search_method)
     else:
         X_train, X_test, y_train, y_test = m.ml_data.process_data(method='tfidf')
         logger.info('model select with tfidf')
@@ -38,8 +39,7 @@ if __name__ == '__main__':
                        y_test,
                        feature_method='tfidf')
 
-        X_train, X_test, y_train, y_test = m.ml_data.process_data(
-            method='word2vec')
+        X_train, X_test, y_train, y_test = m.ml_data.process_data(method='word2vec')
         logger.info('model select with word2vec')
         m.model_select(X_train,
                        X_test,
@@ -47,8 +47,7 @@ if __name__ == '__main__':
                        y_test,
                        feature_method='word2vec')
 
-        X_train, X_test, y_train, y_test = m.ml_data.process_data(
-            method='fasttext')
+        X_train, X_test, y_train, y_test = m.ml_data.process_data(method='fasttext')
         logger.info('model select with fasttext')
         m.model_select(X_train,
                        X_test,

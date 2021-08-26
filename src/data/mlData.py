@@ -1,8 +1,8 @@
 '''
 @Author: your name
 @Date: 2020-04-08 17:21:28
-@LastEditTime: 2020-07-06 20:18:42
-@LastEditors: xiaoyao jiang
+LastEditTime: 2021-08-26 15:43:05
+LastEditors: Please set LastEditors
 @Description: Process data then get feature
 @FilePath: /bookClassification(ToDo)/src/data/mlData.py
 '''
@@ -23,8 +23,7 @@ class MLData(object):
         '''
         @description: initlize ML dataset class
         @param {type}
-        debug_mode: if debug_Mode the only deal 10000 data
-        em, new embedding class
+        debug_mode: if debug_Mode the only deal 10000 data em, new embedding class
         @return:None
         '''
         self.debug_mode = debug_mode
@@ -44,6 +43,7 @@ class MLData(object):
         if self.debug_mode:
             self.train = self.train.sample(n=100).reset_index(drop=True)
             self.dev = self.dev.sample(n=10).reset_index(drop=True)
+
         ### TODO:
         # 1. 分词
         # 2. 去除停止词

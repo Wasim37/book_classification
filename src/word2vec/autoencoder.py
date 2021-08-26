@@ -1,8 +1,8 @@
 '''
 @Author: your name
 @Date: 2020-06-28 13:59:12
-@LastEditTime: 2020-07-06 21:59:45
-@LastEditors: xiaoyao jiang
+LastEditTime: 2021-08-26 15:44:04
+LastEditors: Please set LastEditors
 @Description: Train a autoencoder model
 @FilePath: /bookClassification(ToDo)/src/word2vec/autoencoder.py
 '''
@@ -86,7 +86,6 @@ class AutoEncoder(object):
         self.model.save_weights(root_path + '/model/embedding/autoencoder')
         self.encoder.save_weights(root_path + '/model/embedding/autoencoder_encoder')
 
-
     def load(self):
         '''
         @description:  load tokenizer and model
@@ -94,6 +93,7 @@ class AutoEncoder(object):
         @return: None
         '''
         self.tokenizer = joblib.load(root_path + '/model/embedding/tokenizer')
+
         ### TODO
         # 1. 加载 模型文件
         self.model.load_weights(root_path + '/model/embedding/autoencoder')

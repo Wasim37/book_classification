@@ -1,8 +1,8 @@
 '''
 @Author: xiaoyao jiang
 @Date: 2020-04-09 17:01:08
-@LastEditTime: 2020-07-06 20:09:07
-@LastEditors: xiaoyao jiang
+LastEditTime: 2021-08-26 15:55:50
+LastEditors: Please set LastEditors
 @Description: build dictionary
 @FilePath: /bookClassification(ToDo)/src/data/dictionary.py
 '''
@@ -51,8 +51,7 @@ class Dictionary(object):
         if self.max_vocab_size:
             counter = {
                 word: freq
-                for word, freq in counter.most_common(self.max_vocab_size -
-                                                      vocab_size)
+                for word, freq in counter.most_common(self.max_vocab_size - vocab_size)
             }
             print(len(counter))
         if self.min_count:

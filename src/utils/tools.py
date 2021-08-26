@@ -1,8 +1,8 @@
 '''
-@Author: xiaoyao jiang
+@Author: wangxin
 @Date: 2020-04-08 15:35:24
-@LastEditTime: 2020-07-06 20:52:29
-@LastEditors: xiaoyao jiang
+LastEditTime: 2021-08-26 15:53:45
+LastEditors: Please set LastEditors
 @Description: tools
 @FilePath: /bookClassification(ToDo)/src/utils/tools.py
 '''
@@ -130,8 +130,7 @@ def strQ2B(ustring):
             inside_code = ord(uchar)
             if inside_code == 12288:  # 全角空格直接转换
                 inside_code = 32
-            elif (inside_code >= 65281
-                  and inside_code <= 65374):  # 全角字符（除空格）根据关系转化
+            elif (inside_code >= 65281 and inside_code <= 65374):  # 全角字符（除空格）根据关系转化
                 inside_code -= 65248
             rstring += chr(inside_code)
         ss.append(rstring)
@@ -233,8 +232,8 @@ def bayes_parameter_opt_lgb(trn_data,
         'max_depth': (2, 5),
         'lambda_l1': (1, 30),
         'lambda_l2': (1, 50),
-    },
-                                 random_state=0)
+    }, random_state=0)
+    
     # optimize
     lgbBO.maximize(init_points=init_round, n_iter=opt_round)
 
@@ -370,8 +369,7 @@ def formate_data(train, test, train_tfidf, test_tfidf, train_ae, test_ae):
             'res_embedding', 'resnext_embedding', 'wide_embedding',
             'bert_embedding', 'lda'
         ]
-    ],
-                      axis=1).fillna(0.0)
+    ], axis=1).fillna(0.0)
 
     Test = pd.concat([
         test[[
@@ -391,11 +389,10 @@ def formate_data(train, test, train_tfidf, test_tfidf, train_ae, test_ae):
             'w2v_label_mean', 'w2v_label_max', 'w2v_mean', 'w2v_max',
             'w2v_win_2_mean', 'w2v_win_3_mean', 'w2v_win_4_mean',
             'w2v_win_2_max', 'w2v_win_3_max', 'w2v_win_4_max',
-            'res_embedding','resnext_embedding', 'wide_embedding',
+            'res_embedding', 'resnext_embedding', 'wide_embedding',
             'bert_embedding', 'lda'
         ]
-    ],
-                     axis=1).fillna(0.0)
+    ], axis=1).fillna(0.0)
     return Train, Test
 
 

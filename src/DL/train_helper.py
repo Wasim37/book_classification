@@ -1,8 +1,8 @@
 '''
-@Author: xiaoyao jiang
+@Author: wangxin
 @Date: 2020-04-09 17:46:03
 @LastEditTime: 2020-07-06 20:30:20
-@LastEditors: xiaoyao jiang
+@LastEditors: wangxin
 @Description: train
 @FilePath: /bookClassification(ToDo)/src/DL/train_helper.py
 '''

@@ -1,6 +1,6 @@
 '''
-@Author: xiaoyao jiang
-@LastEditors: xiaoyao jiang
+@Author: wangxin
+@LastEditors: wangxin
 @Date: 2020-07-01 11:35:56
 @LastEditTime: 2020-07-06 22:02:00
 @FilePath: /bookClassification(ToDo)/src/utils/feature.py

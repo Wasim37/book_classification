@@ -2,7 +2,7 @@
 @Author: your name
 @Date: 2020-06-18 21:15:35
 @LastEditTime: 2020-07-06 20:23:26
-@LastEditors: xiaoyao jiang
+@LastEditors: wangxin
 @Description: In User Settings Edit
 @FilePath: /bookClassification(ToDo)/src/DL/models/bert.py
 '''

@@ -1,8 +1,8 @@
 '''
-@Author: yeliang xiu
+@Author: wangxin
 @Date: 2020-05-21 10:46:00
-@LastEditTime: 2020-07-06 11:04:01
-@LastEditors: xiaoyao jiang
+LastEditTime: 2021-08-26 14:15:48
+LastEditors: Please set LastEditors
 @Description: Train fasttext model
 @FilePath: /bookClassification/src/ML/fasttext.py
 '''

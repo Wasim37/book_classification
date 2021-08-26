@@ -1,8 +1,8 @@
 '''
-@Author: xiaoyao jiang
+@Author: wangxin
 @Date: 2020-04-08 19:39:30
-@LastEditTime: 2020-07-06 22:02:42
-@LastEditors: xiaoyao jiang
+LastEditTime: 2021-08-26 15:43:22
+LastEditors: Please set LastEditors
 @Description: There are two options. One is using pretrained embedding as feature to compare common ML models.
               The other is using feature engineering + param search tech + imbanlance to train a liaghtgbm model.
 @FilePath: /bookClassification(ToDo)/src/ML/models.py
@@ -52,9 +52,9 @@ class Models(object):
         @return: No return
         '''
         ### TODO
-        # 1. 使用torchvision 初始化resnet152模型
+        # 1. 使用torchvision 初始化 resnet152模型
         # 2. 使用torchvision 初始化 resnext101_32x8d 模型
-        # 3. 使用torchvision 初始化  wide_resnet101_2 模型
+        # 3. 使用torchvision 初始化 wide_resnet101_2 模型
         # 4. 加载bert 模型
         self.res_model = torchvision.models.resnet152(pretrained=True)
         self.res_model = self.res_model.to(config.device)
@@ -62,8 +62,7 @@ class Models(object):
         self.resnext_model = self.resnext_model.to(config.device)
         self.wide_model = torchvision.models.wide_resnet101_2(pretrained=True)
         self.wide_model = self.wide_model.to(config.device)
-        self.bert_tonkenizer = BertTokenizer.from_pretrained(
-            config.root_path + '/model/bert/bert-base-uncased-vocab.txt')
+        self.bert_tonkenizer = BertTokenizer.from_pretrained(config.root_path + '/model/bert/bert-base-uncased-vocab.txt')
         self.bert = BertModel.from_pretrained(config.root_path + '/model/bert/')
         self.bert = self.bert.to(config.device)
 
@@ -291,6 +290,7 @@ class Models(object):
                 self.model = self.model.set_params(**param['params'])
         logger.info('fit model ')
         self.model.fit(self.X_train, self.y_train)
+        
         ### TODO
         # 1. 预测测试集的label
         # 2. 预测训练机的label
@@ -410,7 +410,7 @@ class Models(object):
         @return: None
         '''
         ### TODO
-        # 1. 保存模型
+        # 保存模型
         joblib.dump(self.model, root_path + '/model/ml_model/' + model_name)
 
     def load(self, path):
@@ -421,5 +421,5 @@ class Models(object):
         @return:None
         '''
         ### TODO
-        # 1. 加载模型
+        # 加载模型
         self.model = joblib.load(path)

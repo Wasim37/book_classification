@@ -1,8 +1,8 @@
 '''
 @Author: your name
 @Date: 2020-06-28 14:02:35
-@LastEditTime: 2020-07-06 22:00:21
-@LastEditors: xiaoyao jiang
+LastEditTime: 2021-08-26 15:20:40
+LastEditors: Please set LastEditors
 @Description: In User Settings Edit
 @FilePath: /bookClassification(ToDo)/app.py
 '''
@@ -24,6 +24,8 @@ sess = keras.backend.get_session()
 model = Models(model_path=config.root_path + '/model/ml_model/lightgbm', train_model=False)
 
 app = Flask(__name__)
+
+
 @app.route('/predict', methods=["POST"])
 def gen_ans():
     ### TODO
