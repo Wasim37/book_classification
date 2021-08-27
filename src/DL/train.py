@@ -1,8 +1,8 @@
 '''
 @Author: wangxin
 @Date: 2020-04-09 17:45:10
-@LastEditTime: 2020-07-06 20:27:42
-@LastEditors: wangxin
+LastEditTime: 2021-08-27 15:51:25
+LastEditors: Please set LastEditors
 @Description: main
 @FilePath: /bookClassification(ToDo)/src/DL/train.py
 '''
@@ -45,11 +45,9 @@ logger = create_logger(config.root_path + '/logs/main.log')
 if __name__ == '__main__':
     model_name = args.model
 
-    x = import_module('models.' + model_name)
     # BERT下载, https://github.com/google-research/bert
     # https://huggingface.co/transformers/model_doc/bert.html
     if model_name in ['bert', 'xlnet', 'roberta']:
-        config.bert_path = config.root_path + '/model/' + model_name + '/'
         if 'bert' in model_name:
             config.tokenizer = BertTokenizer.from_pretrained(config.bert_path)
         elif 'xlnet' in model_name:
@@ -58,6 +56,8 @@ if __name__ == '__main__':
             config.tokenizer = RobertaTokenizer.from_pretrained(config.bert_path)
         else:
             raise NotImplementedError
+        
+        config.bert_path = config.root_path + '/model/' + model_name + '/'
         config.save_path = config.root_path + 'model/saved_dict/' + model_name + '.ckpt'  # 模型训练结果
         config.log_path = config.root_path + '/logs/' + model_name
         config.hidden_size = 768
@@ -80,6 +80,7 @@ if __name__ == '__main__':
         data = data['text'].values.tolist()
     else:
         data = data['text'].apply(lambda x: " ".join("".join(x.split())))
+
     if args.dictionary is None:
         dictionary = Dictionary()
         dictionary.build_dictionary(data)
@@ -87,13 +88,15 @@ if __name__ == '__main__':
         joblib.dump(dictionary, config.root_path + '/model/vocab.bin')
     else:
         dictionary = joblib.load(args.dictionary)
+
     if not args.model.isupper():
         tokenizer = config.tokenizer
     else:
         tokenizer = None
 
     logger.info('Making dataset & dataloader...')
-    ### TODO
+    
+    # TODO
     # 1. 使用自定义的MyDataset， 创建DataLoader
     train_dataset = MyDataset(config.train_file,
                               dictionary,
@@ -128,6 +131,7 @@ if __name__ == '__main__':
 
     # train
     # conf.n_vocab = dictionary.max_vocab_size
+    x = import_module('models.' + model_name)
     model = x.Model(config).to(config.device)
     if model_name != 'Transformer':
         init_network(model)

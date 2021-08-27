@@ -51,7 +51,7 @@ class Models(object):
         ml_data: new mldata class
         @return: No return
         '''
-        ### TODO
+        # TODO
         # 1. 使用torchvision 初始化 resnet152模型
         # 2. 使用torchvision 初始化 resnext101_32x8d 模型
         # 3. 使用torchvision 初始化 wide_resnet101_2 模型
@@ -138,7 +138,7 @@ class Models(object):
             lambda x: config.root_path + '/data/book_cover/' + x + '.jpg'
             if x + '.jpg' in cover else '')
 
-        ### TODO
+        # TODO
         # 1. 获取 三大CV模型的 modal embedding
         train['res_embedding'] = train['cover'].progress_apply(
             lambda x: get_img_embedding(x, self.res_model))
@@ -156,7 +156,7 @@ class Models(object):
             lambda x: get_img_embedding(x, self.wide_model))
 
         logger.info("generate bert feature ")
-        ### TODO
+        # TODO
         # 1. 获取bert embedding
         train['bert_embedding'] = train['text'].progress_apply(
             lambda x: get_pretrain_embedding(x, self.bert_tonkenizer, self.bert
@@ -181,7 +181,7 @@ class Models(object):
                 test['bow']))
 
         logger.info("generate autoencoder feature ")
-        ### TODO
+        # TODO
         # 1. 获取 autoencoder feature
         train_ae = get_autoencoder_feature(
             train,
@@ -258,14 +258,14 @@ class Models(object):
         model_name = None
         if imbalance_method == 'over_sampling':
             logger.info("Use SMOTE deal with unbalance data ")
-            ### TODO
+            # TODO
             # 1. 使用over_sampling 处理样本不平衡问题
             self.X_train, self.y_train = SMOTE(random_state=0).fit_resample(self.X_train, self.y_train)
             self.X_test, self.y_test = SMOTE(random_state=0).fit_resample(self.X_test, self.y_test)
             model_name = 'lgb_over_sampling'
         elif imbalance_method == 'under_sampling':
             logger.info("Use ClusterCentroids deal with unbalance data ")
-            ### TODO
+            # TODO
             # 1. 使用 under_sampling 处理样本不平衡问题
             self.X_train, self.y_train = ClusterCentroids(random_state=0).fit_sample(self.X_train, self.y_train)
             self.X_test, self.y_test = ClusterCentroids(random_state=0).fit_sample(self.X_test, self.y_test)
@@ -279,7 +279,7 @@ class Models(object):
             model_name = 'ensemble'
         logger.info('search best param')
         if imbalance_method != 'ensemble':
-            ### TODO
+            # TODO
             # 1. 使用 参数搜索技术
             if search_method == 'grid':
                 self.param_search(search_method=search_method)
@@ -291,7 +291,7 @@ class Models(object):
         logger.info('fit model ')
         self.model.fit(self.X_train, self.y_train)
         
-        ### TODO
+        # TODO
         # 1. 预测测试集的label
         # 2. 预测训练机的label
         # 3. 计算percision , accuracy, recall, fi_score
@@ -395,7 +395,7 @@ class Models(object):
         text: input
         @return: label
         '''
-        ### TODO
+        # TODO
         # 1. 预测结果
         inputs = self.process(title, desc)
         label = self.ix2label[self.model.predict(inputs)[0]]
@@ -409,7 +409,7 @@ class Models(object):
         model_name, file name for saving
         @return: None
         '''
-        ### TODO
+        # TODO
         # 保存模型
         joblib.dump(self.model, root_path + '/model/ml_model/' + model_name)
 
@@ -420,6 +420,6 @@ class Models(object):
         path: model path
         @return:None
         '''
-        ### TODO
+        # TODO
         # 加载模型
         self.model = joblib.load(path)

@@ -1,8 +1,8 @@
 '''
 @Author: wangxin
 @Date: 2020-04-09 17:46:03
-@LastEditTime: 2020-07-06 20:30:20
-@LastEditors: wangxin
+LastEditTime: 2021-08-27 15:58:30
+LastEditors: Please set LastEditors
 @Description: train
 @FilePath: /bookClassification(ToDo)/src/DL/train_helper.py
 '''
@@ -65,7 +65,7 @@ def train(config, model, train_iter, dev_iter, test_iter):
             'weight_decay':
             0.0
         }]
-        ### TODO
+        # TODO
         # 1. 初始化AdamW 优化器
         optimizer = AdamW(optimizer_grouped_parameters,
                           lr=config.learning_rate,
@@ -89,7 +89,8 @@ def train(config, model, train_iter, dev_iter, test_iter):
             labels = labels.to(config.device)
             mask = mask.to(config.device)
             tokens = tokens.to(config.device)
-            ### TODO
+            
+            # TODO
             # 1. 加载模型进行训练
             # 2. 清空梯度
             # 3. 计算loss

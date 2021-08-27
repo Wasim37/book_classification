@@ -28,7 +28,7 @@ app = Flask(__name__)
 
 @app.route('/predict', methods=["POST"])
 def gen_ans():
-    ### TODO
+    # TODO
     # 1. 接受request 输入 并返回预测结果
     result = {}
     title = request.form.get('title')

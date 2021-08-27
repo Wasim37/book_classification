@@ -1,8 +1,8 @@
 '''
 @Author: your name
 @Date: 2020-06-18 21:15:35
-@LastEditTime: 2020-07-06 20:23:26
-@LastEditors: wangxin
+LastEditTime: 2021-08-27 09:20:19
+LastEditors: Please set LastEditors
 @Description: In User Settings Edit
 @FilePath: /bookClassification(ToDo)/src/DL/models/bert.py
 '''
@@ -23,7 +23,7 @@ class Model(nn.Module):
         self.fc = nn.Linear(config.hidden_size, config.num_classes)
 
     def forward(self, x):
-        ### TODO
+        # TODO
         # 构建bert 分类模型
         context = x[0]
         mask = x[1]

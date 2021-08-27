@@ -81,7 +81,7 @@ class AutoEncoder(object):
         '''
         joblib.dump(self.tokenizer, root_path + '/model/embedding/tokenizer')
 
-        ### TODO
+        # TODO
         # 1. 保存 模型文件到/model/embedding/目录下
         self.model.save_weights(root_path + '/model/embedding/autoencoder')
         self.encoder.save_weights(root_path + '/model/embedding/autoencoder_encoder')
@@ -94,7 +94,7 @@ class AutoEncoder(object):
         '''
         self.tokenizer = joblib.load(root_path + '/model/embedding/tokenizer')
 
-        ### TODO
+        # TODO
         # 1. 加载 模型文件
         self.model.load_weights(root_path + '/model/embedding/autoencoder')
         self.encoder.load_weights(root_path + '/model/embedding/autoencoder_encoder')
