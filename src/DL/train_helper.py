@@ -1,7 +1,7 @@
 '''
 @Author: wangxin
 @Date: 2020-04-09 17:46:03
-LastEditTime: 2021-08-27 15:58:30
+LastEditTime: 2021-08-27 16:25:07
 LastEditors: Please set LastEditors
 @Description: train
 @FilePath: /bookClassification(ToDo)/src/DL/train_helper.py

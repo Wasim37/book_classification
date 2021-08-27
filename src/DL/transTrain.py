@@ -1,8 +1,8 @@
 '''
 @Author: your name
 @Date: 2020-04-09 18:08:01
-@LastEditTime: 2020-04-10 13:36:15
-@LastEditors: Please set LastEditors
+LastEditTime: 2021-08-27 17:06:23
+LastEditors: Please set LastEditors
 @Description: In User Settings Edit
 @FilePath: /textClassification/src/DL/transTrain.py
 '''
@@ -66,8 +66,7 @@ device = torch.device("cuda" if args['is_cuda'] else "cpu")
 MODEL_CLASSES = {
     'bert': (BertConfig, BertForSequenceClassification, BertTokenizer),
     'xlnet': (XLNetConfig, XLNetForSequenceClassification, XLNetTokenizer),
-    'roberta':
-    (RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer)
+    'roberta': (RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer)
 }
 
 # config_class, model_class, tokenizer_class = MODEL_CLASSES[args['model_type']]
@@ -140,8 +139,7 @@ def train(train_dataset, model, tokenizer):
     logger.info("  Num examples = %d", len(train_dataset))
     logger.info("  Num Epochs = %d", args['num_train_epochs'])
     logger.info("  Total train batch size  = %d", args['train_batch_size'])
-    logger.info("  Gradient Accumulation steps = %d",
-                args['gradient_accumulation_steps'])
+    logger.info("  Gradient Accumulation steps = %d", args['gradient_accumulation_steps'])
     logger.info("  Total optimization steps = %d", t_total)
 
     global_step = 0
@@ -199,10 +197,8 @@ def train(train_dataset, model, tokenizer):
                         for key, value in results.items():
                             tb_writer.add_scalar('eval_{}'.format(key), value,
                                                  global_step)
-                    tb_writer.add_scalar('lr',
-                                         scheduler.get_lr()[0], global_step)
-                    tb_writer.add_scalar('loss', (tr_loss - logging_loss) /
-                                         args['logging_steps'], global_step)
+                    tb_writer.add_scalar('lr', scheduler.get_lr()[0], global_step)
+                    tb_writer.add_scalar('loss', (tr_loss - logging_loss) / args['logging_steps'], global_step)
                     logging_loss = tr_loss
 
                 if args['save_steps'] > 0 and global_step % args[
@@ -236,7 +232,7 @@ def get_eval_report(labels, preds):
     if len(result) == 4:
         tn, fp, fn, tp = result
     else:
-        tn, fp, fn, tp = 0 ,0 , 0, 0
+        tn, fp, fn, tp = 0, 0, 0, 0
     return {
         "mcc": mcc,
         "tp": tp,
@@ -258,14 +254,14 @@ def evaluate(model, tokenizer, prefix=""):
     results = {}
 
     dev_dataset = MyDataset(args['data_dir'] + 'dev_clean.tsv',
-                          max_length=args['max_length'],
-                          tokenizer=tokenizer)
+                            max_length=args['max_length'],
+                            tokenizer=tokenizer)
     dev_dataloader = DataLoader(dev_dataset,
-                              batch_size=args['eval_batch_size'],
-                              shuffle=True,
-                              pin_memory=True,
-                              drop_last=True,
-                              collate_fn=collate_fn)
+                                batch_size=args['eval_batch_size'],
+                                shuffle=True,
+                                pin_memory=True,
+                                drop_last=True,
+                                collate_fn=collate_fn)
 
     # Eval!
     logger.info("***** Running evaluation {} *****".format(prefix))

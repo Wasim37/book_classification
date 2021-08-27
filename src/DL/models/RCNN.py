@@ -1,14 +1,13 @@
 '''
 @Author: https://github.com/649453932/
-@LastEditTime: 2020-06-28 12:44:10
-@LastEditors: Please set LastEditors
+LastEditTime: 2021-08-27 16:27:55
+LastEditors: Please set LastEditors
 @Description: Recurrent Convolutional Neural Networks for Text Classification
 @FilePath: /textClassification/src/DL/models/RCNN.py
 '''
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
 
 
 class Model(nn.Module):
@@ -26,7 +25,7 @@ class Model(nn.Module):
         out = torch.cat((embed, out), 2)
         out = F.relu(out)
         out = out.permute(0, 2, 1)
-        out = self.maxpool(out) 
+        out = self.maxpool(out)
         out = out.squeeze()
         out = self.fc(out)
         return out

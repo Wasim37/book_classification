@@ -1,8 +1,8 @@
 '''
 @Author: xiaoyao jiang
 @Date: 2020-04-09 16:21:08
-@LastEditTime: 2020-07-06 20:25:23
-@LastEditors: xiaoyao jiang
+LastEditTime: 2021-08-27 16:02:27
+LastEditors: Please set LastEditors
 @Description: data set
 @FilePath: /bookClassification(ToDo)/src/data/dataset.py
 '''
@@ -85,7 +85,7 @@ def collate_fn(batch):
         pad 函数
         注意 token type id 右侧pad是添加1而不是0，1表示属于句子B
         """
-        ### TODO 
+        # TODO
         pad_indice = [
             item + [pad_idx] * max(0, max_length - len(item))
             for item in indice

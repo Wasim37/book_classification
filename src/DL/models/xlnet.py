@@ -7,7 +7,6 @@
 @FilePath: /bookClassification/src/DL/models/xlnet.py
 '''
 # coding: UTF-8
-import torch
 import torch.nn as nn
 from transformers import XLNetTokenizer, XLNetConfig, XLNetForSequenceClassification
 from __init__ import *
