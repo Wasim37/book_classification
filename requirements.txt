@@ -15,7 +15,7 @@ bleach                            1.5.0
 bokeh                             1.0.1
 boto                              2.49.0
 boto3                             1.14.16
-botocore                          1.17.16 
+botocore                          1.17.16
 certifi                           2018.10.15
 cffi                              1.11.5
 chardet                           3.0.4
